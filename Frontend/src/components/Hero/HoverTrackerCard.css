@@ -1,0 +1,153 @@
+/* Base styles common to both */
+.hover-tracker-card {
+    position: relative;
+    box-sizing: border-box;
+    transform-style: preserve-3d;
+    will-change: transform;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    --translate-y: 0px;
+    
+    transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(var(--translate-y));
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
+}
+
+/* ========================================================
+   STATS CARD VARIANT
+   ======================================================== */
+.hover-tracker-card.tracker-variant-stats {
+    min-width: 170px;
+    padding: 22px;
+    background: rgba(33, 33, 33, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 18px;
+    text-align: center;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+.hover-tracker-card.tracker-variant-stats:hover {
+    --translate-y: -8px;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s ease;
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15), 0 0 25px rgba(212, 175, 55, 0.05);
+}
+
+/* Base border overlay style (using mask composite) */
+.hover-tracker-card.tracker-variant-stats::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1.5px; /* border thickness */
+    background: rgba(255, 255, 255, 0.08);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.4s ease;
+}
+
+/* Spotlight border on hover */
+.hover-tracker-card.tracker-variant-stats:hover::before {
+    background: radial-gradient(
+        150px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+        rgba(212, 175, 55, 0.65) 0%,
+        rgba(212, 175, 55, 0.15) 50%,
+        transparent 100%
+    );
+}
+
+/* Spotlight background glow */
+.hover-tracker-card-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        220px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+        rgba(212, 175, 55, 0.08),
+        transparent 80%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.4s ease;
+}
+
+.hover-tracker-card.tracker-variant-stats:hover .hover-tracker-card-glow {
+    opacity: 1;
+}
+
+/* Rotating Border Beam Animation on Hover */
+.border-beam-container {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1.5px;
+    background: transparent;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.border-beam-indicator {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: conic-gradient(from 0deg, transparent 60%, #d4af37 85%, transparent 100%);
+    animation: borderBeamMove 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.hover-tracker-card.tracker-variant-stats:hover .border-beam-indicator {
+    opacity: 1;
+}
+
+@keyframes borderBeamMove {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================================
+   CAR CARD VARIANT (Only tilt, translate, and shadow animation)
+   ======================================================== */
+.hover-tracker-card.tracker-variant-car {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Subtle tilt config */
+    transform: perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(var(--translate-y));
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
+}
+
+.hover-tracker-card.tracker-variant-car:hover {
+    --translate-y: -6px; /* Subtle lift */
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s ease;
+    /* Rich subtle dark shadow boost, no color glows */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.card-inner-content {
+    position: relative;
+    z-index: 3;
+    transform: translateZ(20px); /* 3D pop effect for child text */
+    height: 100%;
+}
+
+.tracker-variant-stats .card-inner-content {
+    pointer-events: none;
+}
+
+.tracker-variant-car .card-inner-content {
+    pointer-events: auto; /* Enable interactive clicks on car cards */
+}

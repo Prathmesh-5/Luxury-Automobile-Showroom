@@ -1,0 +1,27 @@
+.hero-stats {
+    position: absolute;
+    bottom: 60px;
+    right: 8%;
+    display: flex;
+    gap: 20px;
+    z-index: 10;
+}
+
+.hover-tracker-card h2 {
+    color: #d4af37;
+    font-size: 34px;
+    margin: 0 0 8px 0;
+}
+
+.hover-tracker-card p {
+    color: white;
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+@media (max-width: 992px) {
+    .hero-stats {
+        display: none;
+    }
+}

@@ -1,0 +1,285 @@
+.test-drive-page {
+    background: #08080a;
+}
+
+/* Banner */
+.booking-banner {
+    position: relative;
+    height: 350px;
+    background-image: url("https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=1600&auto=format&fit=crop&q=80");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.booking-banner .banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8, 8, 10, 0.4), #08080a);
+}
+
+.booking-banner .banner-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+}
+
+.booking-banner .banner-content h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.booking-banner .banner-content p {
+    color: #d4af37;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* Core section */
+.booking-section {
+    padding: 80px 6%;
+}
+
+.booking-container-card {
+    background: rgba(18, 18, 22, 0.7);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px;
+    backdrop-filter: blur(15px);
+}
+
+.booking-form-full {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.booking-form-title h2 {
+    font-size: 32px;
+    color: #fff;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+}
+
+.booking-form-title p {
+    color: #a1a1aa;
+    font-size: 15px;
+    margin: 0;
+}
+
+.form-sections-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+}
+
+.form-column h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #d4af37;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-group-field {
+    margin-bottom: 20px;
+}
+
+.form-group-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #8a8a93;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.icon-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.field-icon {
+    position: absolute;
+    left: 18px;
+    color: #d4af37;
+    font-size: 16px;
+}
+
+.icon-input-container input,
+.icon-input-container select,
+.form-group-field select {
+    width: 100%;
+    padding: 14px 48px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition:
+    border-color .80s ease,
+    box-shadow .25s ease,
+    background .25s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+/* Hover State */
+
+.icon-input-container input:hover,
+.icon-input-container select:hover,
+.form-group-field select:hover {
+
+    background: rgba(20,20,28,.98);
+
+    border-color: #d4af37;
+
+    box-shadow:
+        0 0 0 1px rgba(212,175,55,.25),
+        0 0 28px rgba(212,175,55,.18);
+}
+
+/* Active / Focus State */
+
+.icon-input-container input:focus,
+.icon-input-container select:focus,
+.form-group-field select:focus {
+    background: rgba(20,20,28,.98);
+
+    border-color: #d4af37;
+
+    box-shadow:
+        0 0 0 1px rgba(212,175,55,.25),
+        0 0 28px rgba(212,175,55,.18);
+
+    outline: none;
+}
+
+/* Select appearance handled by global dropdown.css */
+.icon-input-container select,
+.form-group-field select {
+    padding: 14px 45px 14px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    cursor: pointer;
+
+    transition:
+        border-color .80s ease,
+        box-shadow .25s ease,
+        background .25s ease;
+}
+
+.icon-input-container select {
+    padding-left: 48px;
+}
+
+.form-group-field select option {
+    background: #121216;
+    color: #fff;
+}
+
+
+
+
+/* Submit Button */
+.booking-submit-btn {
+    padding: 18px;
+    background: linear-gradient(135deg, #d4af37, #b59410);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.booking-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e5be50, #d4af37);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+}
+
+.booking-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .form-sections-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    .booking-banner .banner-content h1 {
+        font-size: 38px;
+    }
+    .booking-banner .banner-content p {
+        font-size: 15px;
+    }
+    .booking-section {
+        padding: 40px 20px;
+    }
+    .booking-container-card {
+        padding: 30px 20px;
+    }
+}
+
+
+/* Premium Dropdown */
+
+.form-group-field .ps-wrapper{
+    width: 100%;
+}
+
+.form-group-field .ps-trigger{
+    width: 100%;
+    height: 52px;
+
+    border-radius: 10px;
+
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.form-group-field .ps-menu{
+    width: 100%;
+    z-index: 1000;
+}
+
+
+
+
+
+#testdrive-time .ps-trigger {
+    padding-left: 20px;
+}

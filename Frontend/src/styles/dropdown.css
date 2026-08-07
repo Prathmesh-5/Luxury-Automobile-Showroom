@@ -1,0 +1,501 @@
+/* ============================================================
+   GLOBAL PREMIUM DROPDOWN SYSTEM
+   Unified luxury select & dropdown UI for the entire project.
+   Gold (#D4AF37) on Deep Black (#0B0B10) — premium look.
+   ============================================================ */
+
+:root {
+    --dd-arrow: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    --dd-bg:           rgba(11, 11, 16, 0.92);
+    --dd-gold:         #d4af37;
+    --dd-gold-low:     rgba(212, 175, 55, 0.18);
+    --dd-gold-glow:    rgba(212, 175, 55, 0.28);
+    --dd-border:       rgba(212, 175, 55, 0.22);
+    --dd-border-hover: rgba(212, 175, 55, 0.5);
+    --dd-radius:       12px;
+    --dd-transition:   all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    --dd-text:         #d0d0d8;
+    --dd-option-bg:    #0f0f15;
+}
+
+select {
+    font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+select:focus,
+select:focus-visible {
+    outline: none;
+}
+
+/* ── Cars page sidebar filters ── */
+.filter-group select {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: var(--dd-radius);
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    outline: none;
+    transition: var(--dd-transition);
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+}
+.filter-group select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.95);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 14px var(--dd-gold-low);
+}
+.filter-group select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.filter-group select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Cars page sort bar ── */
+.sorting-group select {
+    padding: 10px 40px 10px 15px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: var(--dd-radius);
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: var(--dd-transition);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+}
+.sorting-group select:hover {
+    border-color: var(--dd-border-hover);
+    box-shadow: 0 0 16px var(--dd-gold-low);
+}
+.sorting-group select:focus {
+    border-color: var(--dd-gold);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.sorting-group select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Home quick search selects ── */
+.search-input-group select {
+    padding: 16px 45px 16px 20px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: 12px;
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: var(--dd-transition);
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    background-size: 14px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.35);
+}
+.search-input-group select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.95);
+    box-shadow: 0 0 16px var(--dd-gold-low);
+}
+.search-input-group select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.search-input-group select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Sell Your Car & form selects ── */
+.form-group select,
+.form-group-field select {
+    padding: 14px 45px 14px 18px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: 10px;
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: var(--dd-transition);
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    background-size: 14px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.form-group select:hover,
+.form-group-field select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.95);
+    box-shadow: 0 0 14px var(--dd-gold-low);
+}
+.form-group select:focus,
+.form-group-field select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.form-group select option,
+.form-group-field select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Icon container selects (with left icon padding) ── */
+.icon-input-container select {
+    padding: 14px 45px 14px 48px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: 10px;
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: var(--dd-transition);
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    background-size: 14px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.icon-input-container select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.95);
+    box-shadow: 0 0 14px var(--dd-gold-low);
+}
+.icon-input-container select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.icon-input-container select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Car Details form-field select ── */
+.form-field select {
+    padding: 14px 45px 14px 18px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: 10px;
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: var(--dd-transition);
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    background-size: 14px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.form-field select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.95);
+    box-shadow: 0 0 14px var(--dd-gold-low);
+}
+.form-field select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.form-field select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Admin modal form selects ── */
+.modal-form-group select {
+    padding: 12px 40px 12px 16px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: 10px;
+    color: var(--dd-text);
+    font-size: 14px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: var(--dd-transition);
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.modal-form-group select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.95);
+    box-shadow: 0 0 14px var(--dd-gold-low);
+}
+.modal-form-group select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 22px var(--dd-gold-glow);
+}
+.modal-form-group select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Admin filter row selects ── */
+.cars-filter-select {
+    padding: 9px 34px 9px 14px;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border);
+    border-radius: 10px;
+    color: var(--dd-text);
+    font-size: 13px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: var(--dd-arrow);
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    transition: var(--dd-transition);
+    outline: none;
+    min-width: 130px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.cars-filter-select:hover {
+    border-color: var(--dd-border-hover);
+    background-color: rgba(18, 18, 26, 0.96);
+    box-shadow: 0 0 12px var(--dd-gold-low);
+}
+.cars-filter-select:focus {
+    border-color: var(--dd-gold);
+    background-color: rgba(18, 18, 26, 0.98);
+    box-shadow: 0 0 0 2px var(--dd-gold-low), 0 0 18px var(--dd-gold-glow);
+}
+.cars-filter-select option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Admin status pill selects ── */
+.status-select-btn {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 11px;
+    padding-right: 28px;
+    transition: var(--dd-transition);
+    outline: none;
+    cursor: pointer;
+    border: none;
+}
+.status-select-btn:focus {
+    box-shadow: 0 0 0 2px var(--dd-gold-low);
+    outline: none;
+}
+.status-select-btn option {
+    background: var(--dd-option-bg);
+    color: #e0e0e8;
+}
+
+/* ── Navbar premium dropdown animation ── */
+@keyframes premiumDropIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0px) scale(1);
+    }
+}
+
+.brands-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(11, 11, 16, 0.98);
+    border: 1px solid var(--dd-border);
+    border-radius: 16px;
+    min-width: 190px;
+    max-height: 340px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 1010;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow:
+        0 0 0 1px rgba(212, 175, 55, 0.08),
+        0 8px 32px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(212, 175, 55, 0.08);
+    animation: premiumDropIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    margin-top: 0;
+}
+
+.brands-dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: rgba(11, 11, 16, 0.98);
+    border-top: 1px solid var(--dd-border);
+    border-left: 1px solid var(--dd-border);
+}
+
+.brands-dropdown-menu a.dropdown-item-link {
+    display: block;
+    color: #a8a8b4;
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    text-align: left;
+    box-sizing: border-box;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    margin: 1px 8px;
+    width: calc(100% - 16px);
+}
+
+.brands-dropdown-menu a.dropdown-item-link::after {
+    display: none;
+}
+
+.brands-dropdown-menu a.dropdown-item-link:hover {
+    color: var(--dd-gold);
+    background: rgba(212, 175, 55, 0.08);
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+    padding-left: 24px;
+}
+
+.brands-dropdown-menu::-webkit-scrollbar { width: 0; transition: width 0.2s; }
+.brands-dropdown-menu:hover::-webkit-scrollbar { width: 4px; }
+.brands-dropdown-menu::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+.brands-dropdown-menu::-webkit-scrollbar-thumb { background: var(--dd-gold); border-radius: 4px; }
+.brands-dropdown-menu::-webkit-scrollbar-thumb:hover { background: #e5be50; }
+
+/* ── Premium scrollbar for modal form & sidebar ── */
+.modal-form::-webkit-scrollbar { width: 4px; }
+.modal-form::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+.modal-form::-webkit-scrollbar-thumb { background: var(--dd-gold); border-radius: 10px; }
+.modal-form::-webkit-scrollbar-thumb:hover { background: #e5be50; }
+
+.filters-sidebar::-webkit-scrollbar { width: 4px; }
+.filters-sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+.filters-sidebar::-webkit-scrollbar-thumb { background: var(--dd-gold); border-radius: 10px; }
+
+/* ── Mobile overrides ── */
+@media (max-width: 1024px) {
+    .brands-dropdown-menu {
+        position: static;
+        transform: none;
+        box-shadow: none;
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        background: rgba(15, 15, 20, 0.85);
+        border-radius: 12px;
+        width: 100%;
+        margin-top: 8px;
+        align-items: center;
+        animation: none;
+        max-height: none;
+    }
+    .brands-dropdown-menu::before { display: none; }
+    .brands-dropdown-menu a.dropdown-item-link {
+        text-align: center;
+        padding: 10px 0;
+        margin: 1px 0;
+        width: 100%;
+    }
+    .brands-dropdown-menu a.dropdown-item-link:hover {
+        padding-left: 0;
+        background: rgba(212, 175, 55, 0.07);
+    }
+    .filter-group select,
+    .sorting-group select,
+    .search-input-group select,
+    .form-group select,
+    .form-group-field select,
+    .icon-input-container select,
+    .form-field select,
+    .modal-form-group select { font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+    .cars-filter-select {
+        min-width: calc(50% - 8px);
+        flex: 1 1 calc(50% - 8px);
+    }
+}
+

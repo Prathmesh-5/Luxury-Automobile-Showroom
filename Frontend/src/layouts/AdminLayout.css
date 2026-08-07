@@ -1,0 +1,238 @@
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #08080a;
+    color: #e5e5e7;
+    font-family: 'Outfit', sans-serif;
+}
+
+/* Sidebar Styles */
+.admin-sidebar {
+    width: 280px;
+    background: rgba(18, 18, 22, 0.95);
+    border-right: 1px solid rgba(212, 175, 55, 0.15);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-brand {
+    padding: 30px 24px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.sidebar-brand h2 {
+    color: #d4af37;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.sidebar-brand span {
+    font-size: 11px;
+    color: #8a8a93;
+    letter-spacing: 3px;
+    display: block;
+    margin-top: 5px;
+}
+
+.user-profile-badge {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+    background: rgba(212, 175, 55, 0.02);
+}
+
+.user-profile-badge .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4af37, #b59410);
+    color: black;
+    font-weight: 700;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+}
+
+.user-profile-badge .info h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.user-profile-badge .info p {
+    margin: 3px 0 0 0;
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 25px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    color: #a1a1aa;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+.nav-icon {
+    font-size: 18px;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.03));
+    border-left: 3px solid #d4af37;
+    color: #d4af37;
+    font-weight: 600;
+    box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.05);
+}
+
+.nav-item.external {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 15px;
+}
+
+.sidebar-footer {
+    padding: 20px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #fff;
+    border-color: #ef4444;
+}
+
+/* Main Content Styles */
+.admin-main {
+    flex: 1;
+    margin-left: 280px;
+    padding: 40px;
+    min-height: 100vh;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Mobile Bar Styles */
+.mobile-admin-header {
+    display: none;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .admin-main {
+        margin-left: 0;
+        padding: 100px 20px 40px 20px;
+    }
+
+    .admin-sidebar {
+        transform: translateX(-100%);
+        box-shadow: 15px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .mobile-admin-header {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background: #121216;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+        padding: 0 20px;
+        z-index: 99;
+    }
+
+    .menu-toggle-btn {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        margin-right: 15px;
+    }
+
+    .mobile-logo {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .mobile-logo span {
+        color: #d4af37;
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 98;
+    }
+}

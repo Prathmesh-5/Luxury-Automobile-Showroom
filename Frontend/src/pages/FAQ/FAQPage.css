@@ -1,0 +1,186 @@
+.faq-page {
+    background: #08080a;
+}
+
+/* Banner */
+.faq-banner {
+    position: relative;
+    height: 350px;
+    background-image: url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&auto=format&fit=crop&q=80");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.faq-banner .banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8, 8, 10, 0.4), #08080a);
+}
+
+.faq-banner .banner-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+}
+
+.faq-banner .banner-content h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.faq-banner .banner-content p {
+    color: #d4af37;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* Content Core Section */
+.faq-content-section {
+    padding: 80px 6%;
+}
+
+.faq-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.faq-groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+
+.faq-category-group {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.category-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-left: 4px solid #d4af37;
+    padding-left: 15px;
+    margin-bottom: 10px;
+}
+
+.accordion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Accordion Card */
+.accordion-item {
+    background: rgba(18, 18, 22, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.accordion-item.open {
+    border-color: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.accordion-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 28px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    text-align: left;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    gap: 20px;
+    font-family: inherit;
+}
+
+.accordion-header:hover {
+    color: #d4af37;
+}
+
+.accordion-icon {
+    font-size: 18px;
+    color: #d4af37;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Collapse Animation */
+.accordion-collapse {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-item.open .accordion-collapse {
+    max-height: 500px; /* arbitrary height to fit contents */
+}
+
+.accordion-body {
+    padding: 0 28px 25px 28px;
+    color: #a1a1aa;
+    font-size: 15px;
+    line-height: 1.6;
+    border-top: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.no-faqs-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.no-faqs-state .help-icon {
+    font-size: 48px;
+    color: #d4af37;
+    margin-bottom: 20px;
+}
+
+.no-faqs-state h3 {
+    font-size: 20px;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .faq-banner .banner-content h1 {
+        font-size: 34px;
+    }
+    .faq-banner .banner-content p {
+        font-size: 14px;
+    }
+    .faq-content-section {
+        padding: 50px 20px;
+    }
+    .accordion-header {
+        padding: 18px 20px;
+        font-size: 15px;
+    }
+    .accordion-body {
+        padding: 0 20px 20px 20px;
+        font-size: 14px;
+    }
+    .category-title {
+        font-size: 18px;
+    }
+}

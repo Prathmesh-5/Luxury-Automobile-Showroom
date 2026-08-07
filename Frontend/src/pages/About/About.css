@@ -1,0 +1,173 @@
+.about-page {
+    background: #08080a;
+}
+
+/* Banner */
+.about-banner {
+    position: relative;
+    height: 350px;
+    background-image: url("https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1600&auto=format&fit=crop&q=80");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.about-banner .banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8, 8, 10, 0.4), #08080a);
+}
+
+.about-banner .banner-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+}
+
+.about-banner .banner-content h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.about-banner .banner-content p {
+    color: #d4af37;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* Intro Section */
+.about-intro-section {
+    padding: 100px 6%;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.intro-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.intro-text h2 {
+    font-size: 38px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 25px;
+}
+
+.intro-text .lead-text {
+    font-size: 18px;
+    color: #d4af37;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.intro-text p {
+    color: #a1a1aa;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.intro-image {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    height: 450px;
+}
+
+.intro-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Values Section */
+.values-section {
+    padding: 100px 6%;
+    background: #0c0c0f;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.section-header {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.value-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 40px 30px;
+    border-radius: 15px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.value-num {
+    font-size: 44px;
+    font-weight: 900;
+    color: rgba(212, 175, 55, 0.1);
+    position: absolute;
+    top: 20px;
+    right: 30px;
+}
+
+.value-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #d4af37;
+    margin: 0 0 15px 0;
+}
+
+.value-card p {
+    color: #a1a1aa;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.value-card:hover {
+    transform: translateY(-5px);
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.02);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .intro-image {
+        height: 320px;
+    }
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-intro-section,
+    .values-section {
+        padding: 60px 20px;
+    }
+}

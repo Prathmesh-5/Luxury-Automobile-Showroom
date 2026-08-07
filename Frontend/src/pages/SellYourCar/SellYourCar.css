@@ -1,0 +1,349 @@
+.sell-car-page {
+    background: #08080a;
+}
+
+/* Banner */
+.sell-banner {
+    position: relative;
+    height: 350px;
+    background-image: url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600&auto=format&fit=crop&q=80");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.sell-banner .banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(8, 8, 10, 0.4), #08080a);
+}
+
+.sell-banner .banner-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+}
+
+.sell-banner .banner-content h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.sell-banner .banner-content p {
+    color: #d4af37;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* Core Section Grid */
+.sell-section {
+    padding: 80px 6%;
+}
+
+.sell-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: flex-start;
+}
+
+/* Value Props Left Panel */
+.sell-info-panel h2 {
+    font-size: 38px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.sell-info-panel p {
+    color: #a1a1aa;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.prop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.prop-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.prop-icon {
+    font-size: 24px;
+    color: #d4af37;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.prop-text h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 8px 0;
+}
+
+.prop-text p {
+    font-size: 14px;
+    color: #8a8a93;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Right Form Panel */
+.sell-form-container {
+    background: rgba(18, 18, 22, 0.7);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 20px;
+    padding: 40px;
+    backdrop-filter: blur(15px);
+}
+
+.sell-form-container .form-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 15px;
+}
+
+.sell-form-container .header-icon {
+    font-size: 22px;
+    color: #d4af37;
+}
+
+.sell-form-container .form-header h3 {
+    font-size: 20px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.sell-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-sub-header {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #d4af37;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.form-row {
+    width: 100%;
+}
+
+.form-row.two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-row.three-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+/* Fields Styles */
+.form-group {
+    width: 100%;
+}
+
+.form-group-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.form-group-icon .input-icon {
+    position: absolute;
+    left: 18px;
+    color: #8a8a93;
+    font-size: 16px;
+}
+
+.form-group-icon input {
+    padding-left: 48px !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.form-group-icon input {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+/* Select appearance handled by global dropdown.css */
+.form-group select {
+    padding: 14px 45px 14px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.form-group select option {
+    background: #121216;
+    color: #fff;
+}
+
+
+/* Upload zone card */
+.file-upload-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    border: 2px dashed rgba(212, 175, 55, 0.3);
+    border-radius: 15px;
+    cursor: pointer;
+    background: rgba(212, 175, 55, 0.02);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.file-upload-card:hover {
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.upload-icon {
+    font-size: 32px;
+    color: #d4af37;
+    margin-bottom: 12px;
+}
+
+.file-upload-card span {
+    display: block;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.file-upload-card p {
+    color: #8a8a93;
+    font-size: 12px;
+    margin: 5px 0 0 0;
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+/* Previews Grid */
+.previews-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.preview-card {
+    height: 80px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.preview-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Submit Button */
+.sell-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #d4af37, #b59410);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.sell-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e5be50, #d4af37);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+}
+
+.sell-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive Grid */
+@media (max-width: 1024px) {
+    .sell-grid-container {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+}
+
+@media (max-width: 640px) {
+    .sell-banner .banner-content h1 {
+        font-size: 38px;
+    }
+    .sell-banner .banner-content p {
+        font-size: 15px;
+    }
+    .sell-section {
+        padding: 40px 20px;
+    }
+    .sell-form-container {
+        padding: 25px 20px;
+    }
+    .form-row.two-cols,
+    .form-row.three-cols {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .previews-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

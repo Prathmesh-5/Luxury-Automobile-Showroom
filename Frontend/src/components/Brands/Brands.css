@@ -1,0 +1,120 @@
+.brands-section{
+    position: relative;
+    z-index: 1;
+    padding:120px 8%;
+
+    background:#0b0b0b;
+
+    overflow:hidden;
+
+    text-align:center;
+}
+
+.brands-subtitle{
+
+    color:#d4af37;
+
+    letter-spacing:4px;
+
+    font-size:13px;
+
+    margin-bottom:15px;
+}
+
+.brands-section h2{
+
+    color:#fff;
+
+    font-size:56px;
+
+    margin-bottom:70px;
+
+    font-weight:700;
+}
+
+.brand-card{
+
+    height:140px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(255,255,255,.02);
+
+    border:1px solid rgba(212,175,55,.10);
+
+    border-radius:20px;
+
+    transition:.45s;
+}
+
+.brand-card img{
+
+    width:130px;
+
+    filter:
+
+        grayscale(100%)
+
+        brightness(.85);
+
+    transition:.45s;
+}
+
+.brand-card:hover{
+
+    transform:translateY(-10px);
+
+    border-color:#d4af37;
+
+    box-shadow:0 15px 40px rgba(212,175,55,.18);
+}
+
+.brand-card:hover img{
+
+    filter:none;
+
+    transform:scale(1.08);
+}
+
+.brand-text-logo {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.brand-card:hover .brand-text-logo {
+    color: #d4af37;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* Swiper vertical padding to prevent hover translation clipping */
+.brands-section .swiper {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: -15px;
+    margin-bottom: -15px;
+}
+
+
+.brand-card{
+    cursor:pointer;
+}
+
+.brand-card.active{
+
+    border:1px solid #d4af37;
+
+    box-shadow:0 0 30px rgba(212,175,55,.18);
+}
+
+.brand-showcase{
+
+    margin-top:70px;
+}

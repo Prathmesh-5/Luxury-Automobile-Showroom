@@ -1,0 +1,113 @@
+.particle-sphere-container {
+    position: absolute;
+    top: 51%;
+    right: -1.5%;
+    width: 450px;
+    height: 450px;
+    z-index: 5;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 50%;
+    outline: none;
+    transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+}
+
+/* GPU Accelerated Particle Canvas */
+.particle-canvas {
+    position: absolute;
+    width: 650px; /* Scaled visual representation centered inside container */
+    height: 650px;
+    pointer-events: none;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+/* Soft Golden Ambient Glow */
+.sphere-glow {
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.04) 50%, rgba(212, 175, 55, 0) 75%);
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.45;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    will-change: transform, opacity;
+    animation: glow-pulse 4s ease-in-out infinite alternate;
+}
+
+/* Hover State Glow & Scale */
+.particle-sphere-container:hover .sphere-glow {
+    opacity: 0.95;
+    transform: scale(1.25);
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0.08) 50%, rgba(212, 175, 55, 0) 75%);
+}
+
+@keyframes glow-pulse {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        transform: translateY(-12px) scale(1.05);
+    }
+}
+
+/* Responsive Sizing */
+@media (max-width: 992px) {
+    .particle-sphere-container {
+        width: 350px;
+        height: 350px;
+        right: -1%;
+        top: 49%;
+    }
+    .particle-canvas {
+        width: 500px;
+        height: 500px;
+    }
+    .sphere-glow {
+        width: 300px;
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .particle-sphere-container {
+        width: 280px;
+        height: 280px;
+        right: -0.5%;
+        top: 47%;
+    }
+    .particle-canvas {
+        width: 400px;
+        height: 400px;
+    }
+    .sphere-glow {
+        width: 240px;
+        height: 240px;
+    }
+}
+
+@media (max-width: 480px) {
+    .particle-sphere-container {
+        width: 200px;
+        height: 200px;
+        right: -0.5%;
+        top: 45%;
+    }
+    .particle-canvas {
+        width: 280px;
+        height: 280px;
+    }
+    .sphere-glow {
+        width: 170px;
+        height: 170px;
+    }
+}

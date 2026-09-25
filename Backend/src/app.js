@@ -28,13 +28,41 @@ import swaggerSpec from "./docs/swagger.js";
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+    process.env.CLIENT_URL,
+    process.env.FRONTEND_URL,
+    process.env.VITE_CLIENT_URL,
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000"
+].filter(Boolean);
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, server-to-server, Postman, health checks)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+            return callback(null, true);
+        }
+        
+        return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(morgan("dev"));
 app.use(limiter);
+
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
 
 app.get("/", (req, res) => {
     res.send("Luxury Automobile Showroom API is Running...");

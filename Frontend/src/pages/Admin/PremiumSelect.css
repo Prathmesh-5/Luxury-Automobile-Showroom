@@ -111,6 +111,24 @@
     overflow: hidden;
 }
 
+/* DropUp variant */
+.ps-menu.ps-menu-up {
+    top: auto;
+    bottom: calc(100% + 10px);
+    animation: psDropUpIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes psDropUpIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* Small pointer triangle at the top */
 .ps-pointer {
     position: absolute;
@@ -121,6 +139,20 @@
     background: rgba(10, 10, 15, 0.98);
     border-top: 1px solid rgba(212, 175, 55, 0.22);
     border-left: 1px solid rgba(212, 175, 55, 0.22);
+    transform: rotate(45deg);
+    z-index: 1;
+}
+
+/* Small pointer triangle at the bottom for dropUp */
+.ps-pointer-bottom {
+    position: absolute;
+    bottom: -6px;
+    left: 20px;
+    width: 10px;
+    height: 10px;
+    background: rgba(10, 10, 15, 0.98);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+    border-right: 1px solid rgba(212, 175, 55, 0.22);
     transform: rotate(45deg);
     z-index: 1;
 }

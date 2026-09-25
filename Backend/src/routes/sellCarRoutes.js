@@ -1,5 +1,5 @@
 import express from "express";
-import { createSellRequest, getAllSellRequests, updateSellRequestStatus } from "../controllers/sellCarController.js";
+import { createSellRequest, getAllSellRequests, updateSellRequestStatus, deleteSellRequest } from "../controllers/sellCarController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -9,6 +9,7 @@ router.route("/")
     .get(protect, getAllSellRequests);
 
 router.route("/:id")
-    .put(protect, updateSellRequestStatus);
+    .put(protect, updateSellRequestStatus)
+    .delete(protect, deleteSellRequest);
 
 export default router;

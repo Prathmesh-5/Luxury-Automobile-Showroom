@@ -7,13 +7,23 @@ const settingsSchema = new mongoose.Schema(
             default: "",
             trim: true
         },
+        googleSpreadsheetId: {
+            type: String,
+            default: "",
+            trim: true
+        },
+        googleSheetName: {
+            type: String,
+            default: "Sheet1",
+            trim: true
+        },
         syncEnabled: {
             type: Boolean,
             default: false
         },
         syncIntervalMinutes: {
             type: Number,
-            default: 60,
+            default: 5,
             min: 5
         },
         lastSyncTime: {

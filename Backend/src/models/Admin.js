@@ -21,6 +21,16 @@ const adminSchema = new mongoose.Schema(
         required: true
     },
 
+    profileImage: {
+        type: String,
+        default: ""
+    },
+
+    avatar: {
+        type: String,
+        default: ""
+    },
+
     resetPasswordToken: {
         type: String
     },

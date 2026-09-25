@@ -22,6 +22,7 @@ function PremiumSelect({
     options = [],
     className = "",
     icon = null,
+    dropUp = false,
 }) {
     const [open, setOpen]       = useState(false);
     const wrapperRef            = useRef(null);
@@ -68,18 +69,18 @@ function PremiumSelect({
             >
                 {icon && <span className="ps-icon">{icon}</span>}
 
-<span className="ps-label">
-    {selected.label}
-</span>
+                <span className="ps-label">
+                    {selected.label}
+                </span>
 
-<FiChevronDown className="ps-chevron" />
+                <FiChevronDown className="ps-chevron" />
             </button>
 
             {/* ── Dropdown panel ── */}
             {open && (
-                <div className="ps-menu" role="listbox" aria-label={id}>
-                    {/* top pointer triangle */}
-                    <div className="ps-pointer" />
+                <div className={`ps-menu ${dropUp ? "ps-menu-up" : ""}`} role="listbox" aria-label={id}>
+                    {/* pointer triangle */}
+                    <div className={dropUp ? "ps-pointer-bottom" : "ps-pointer"} />
 
                     <div className="ps-items-scroll">
                         {options.map((opt) => (

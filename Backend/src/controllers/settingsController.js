@@ -4,14 +4,24 @@ import { triggerSync, startSyncScheduler } from "../services/syncService.js";
 import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/ApiError.js";
 
+// Helper to extract spreadsheet ID from URL or return it if it is already an ID
+const extractSpreadsheetId = (urlOrId) => {
+    if (!urlOrId) return "";
+    if (!urlOrId.includes("docs.google.com")) return urlOrId.trim();
+    const match = urlOrId.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    return match ? match[1] : urlOrId.trim();
+};
+
 // Get Settings (Admin Only)
 export const getSettings = asyncHandler(async (req, res) => {
     let settings = await Settings.findOne();
     if (!settings) {
         settings = await Settings.create({
             googleSheetUrl: "",
+            googleSpreadsheetId: "",
+            googleSheetName: "Sheet1",
             syncEnabled: false,
-            syncIntervalMinutes: 60
+            syncIntervalMinutes: 5
         });
     }
 
@@ -22,14 +32,22 @@ export const getSettings = asyncHandler(async (req, res) => {
 
 // Update Settings (Admin Only)
 export const updateSettings = asyncHandler(async (req, res) => {
-    const { googleSheetUrl, syncEnabled, syncIntervalMinutes } = req.body;
+    const { googleSheetUrl, googleSpreadsheetId, googleSheetName, syncEnabled, syncIntervalMinutes } = req.body;
 
     let settings = await Settings.findOne();
     if (!settings) {
         settings = new Settings();
     }
 
-    settings.googleSheetUrl = googleSheetUrl !== undefined ? googleSheetUrl : settings.googleSheetUrl;
+    if (googleSheetUrl !== undefined) {
+        settings.googleSheetUrl = googleSheetUrl;
+        settings.googleSpreadsheetId = extractSpreadsheetId(googleSheetUrl);
+    } else if (googleSpreadsheetId !== undefined) {
+        settings.googleSpreadsheetId = extractSpreadsheetId(googleSpreadsheetId);
+        settings.googleSheetUrl = `https://docs.google.com/spreadsheets/d/${settings.googleSpreadsheetId}/edit`;
+    }
+    
+    settings.googleSheetName = googleSheetName !== undefined ? googleSheetName : settings.googleSheetName;
     settings.syncEnabled = syncEnabled !== undefined ? syncEnabled : settings.syncEnabled;
     settings.syncIntervalMinutes = syncIntervalMinutes !== undefined ? Number(syncIntervalMinutes) : settings.syncIntervalMinutes;
 

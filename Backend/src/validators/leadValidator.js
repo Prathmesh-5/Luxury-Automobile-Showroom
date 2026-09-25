@@ -17,7 +17,8 @@ export const leadValidation = [
         .withMessage("Phone number is required"),
 
     body("carId")
-        .notEmpty()
-        .withMessage("Car ID is required")
+        .optional({ nullable: true, checkFalsy: true })
+        .isMongoId()
+        .withMessage("Car ID must be a valid Mongo ID")
 
 ];

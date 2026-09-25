@@ -69,37 +69,169 @@ export const loginAdmin = asyncHandler(async (req, res) => {
         );
 
         res.status(200).json(
-    new ApiResponse(
-        200,
-        true,
-        "Login Successful",
-        {
-            token,
-            admin: {
-                id: admin._id,
-                name: admin.name,
-                email: admin.email
-            }
-        }
-    )
-);
+            new ApiResponse(
+                200,
+                true,
+                "Login Successful",
+                {
+                    token,
+                    admin: {
+                        id: admin._id,
+                        name: admin.name,
+                        email: admin.email,
+                        profileImage: admin.profileImage || admin.avatar || "",
+                        avatar: admin.avatar || admin.profileImage || ""
+                    }
+                }
+            )
+        );
 
-
-    
 });
 
-export const getAdminProfile = async (req, res) => {
+export const getAdminProfile = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.admin._id).select("-password");
+    if (!admin) {
+        throw new ApiError(404, "Admin not found");
+    }
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            true,
+            "Admin profile fetched successfully",
+            {
+                id: admin._id,
+                name: admin.name,
+                email: admin.email,
+                profileImage: admin.profileImage || admin.avatar || "",
+                avatar: admin.avatar || admin.profileImage || ""
+            }
+        )
+    );
+});
+
+export const updateAdminProfile = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.admin._id);
+    if (!admin) {
+        throw new ApiError(404, "Admin not found");
+    }
+
+    if (req.body.name !== undefined) {
+        admin.name = req.body.name.trim();
+    }
+
+    if (req.body.profileImage !== undefined) {
+        admin.profileImage = req.body.profileImage;
+        admin.avatar = req.body.profileImage;
+    } else if (req.body.avatar !== undefined) {
+        admin.profileImage = req.body.avatar;
+        admin.avatar = req.body.avatar;
+    }
+
+    await admin.save();
 
     res.status(200).json(
-    new ApiResponse(
-        200,
-        true,
-        "Admin profile fetched successfully",
-        req.admin
-    )
-);
+        new ApiResponse(
+            200,
+            true,
+            "Profile updated successfully.",
+            {
+                id: admin._id,
+                name: admin.name,
+                email: admin.email,
+                profileImage: admin.profileImage || admin.avatar || "",
+                avatar: admin.avatar || admin.profileImage || ""
+            }
+        )
+    );
+});
 
-};
+export const updateAdminEmail = asyncHandler(async (req, res) => {
+    const { currentPassword, newEmail } = req.body;
+
+    if (!currentPassword) {
+        throw new ApiError(400, "Current password is required.");
+    }
+    if (!newEmail) {
+        throw new ApiError(400, "New email is required.");
+    }
+
+    const admin = await Admin.findById(req.admin._id);
+    if (!admin) {
+        throw new ApiError(404, "Admin not found");
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+        throw new ApiError(400, "Current password is incorrect.");
+    }
+
+    const cleanEmail = newEmail.toLowerCase().trim();
+
+    const existingAdmin = await Admin.findOne({
+        email: cleanEmail,
+        _id: { $ne: admin._id }
+    });
+
+    if (existingAdmin) {
+        throw new ApiError(400, "Email address is already in use.");
+    }
+
+    admin.email = cleanEmail;
+    await admin.save();
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            true,
+            "Email updated successfully.",
+            {
+                id: admin._id,
+                name: admin.name,
+                email: admin.email,
+                profileImage: admin.profileImage || admin.avatar || "",
+                avatar: admin.avatar || admin.profileImage || ""
+            }
+        )
+    );
+});
+
+export const updateAdminPassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword) {
+        throw new ApiError(400, "Current password is required.");
+    }
+    if (!newPassword || !confirmPassword) {
+        throw new ApiError(400, "New password and confirmation are required.");
+    }
+    if (newPassword !== confirmPassword) {
+        throw new ApiError(400, "New password and confirmation must match.");
+    }
+    if (newPassword.length < 6) {
+        throw new ApiError(400, "Password must be at least 6 characters.");
+    }
+
+    const admin = await Admin.findById(req.admin._id);
+    if (!admin) {
+        throw new ApiError(404, "Admin not found");
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+        throw new ApiError(400, "Current password is incorrect.");
+    }
+
+    admin.password = await bcrypt.hash(newPassword, 10);
+    await admin.save();
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            true,
+            "Password changed successfully."
+        )
+    );
+});
 
 export const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;

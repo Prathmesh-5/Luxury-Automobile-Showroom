@@ -3,7 +3,7 @@ import { brandsApi, carsApi } from "../../services/api";
 import HoverTrackerCard from "./HoverTrackerCard";
 import "./HeroStats.css";
 
-function HeroStats() {
+function HeroStats({ establishedYear = 2003 }) {
     const [carCount, setCarCount] = useState(0);
     const [brandCount, setBrandCount] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -26,6 +26,9 @@ function HeroStats() {
         fetchCounts();
     }, []);
 
+    const currentYear = new Date().getFullYear();
+    const expYears = Math.max(0, currentYear - Number(establishedYear || 2003));
+
     const stats = [
         {
             number: loading ? "..." : `${carCount}+`,
@@ -36,7 +39,7 @@ function HeroStats() {
             title: "Brands"
         },
         {
-            number: "15+",
+            number: `${expYears}+`,
             title: "Years Experience"
         }
     ];

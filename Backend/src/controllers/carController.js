@@ -2,6 +2,7 @@ import Car from "../models/Car.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/apiResponse.js";
+import { syncVehicleToSheets } from "../services/syncService.js";
 
 // Create Car
 export const createCar = asyncHandler(async (req, res) => {
@@ -10,6 +11,9 @@ export const createCar = asyncHandler(async (req, res) => {
             ...req.body,
             images: req.body.images || []
         });
+
+        // Trigger sync-back to Google Sheets
+        await syncVehicleToSheets(car._id);
 
         res.status(201).json(
             new ApiResponse(
@@ -176,6 +180,9 @@ export const updateCar = asyncHandler(async (req, res) => {
             );
         }
 
+        // Trigger sync-back to Google Sheets
+        await syncVehicleToSheets(updatedCar._id);
+
         res.status(200).json({
             success: true,
             message: "Car Updated Successfully",
@@ -188,18 +195,25 @@ export const updateCar = asyncHandler(async (req, res) => {
 // Delete Car
 export const deleteCar = asyncHandler(async (req, res) => {
 
-        const deletedCar = await Car.findByIdAndDelete(req.params.id);
+        const car = await Car.findById(req.params.id);
 
-        if (!deletedCar) {
+        if (!car) {
             throw new ApiError(
                 404,
                 "Car Not Found"
             );
         }
 
+        // Perform soft-delete by setting status to Sold
+        car.status = "Sold";
+        await car.save();
+
+        // Trigger sync-back to Google Sheets to mark it Sold in the sheet
+        await syncVehicleToSheets(car._id);
+
         res.status(200).json({
             success: true,
-            message: "Car Deleted Successfully"
+            message: "Vehicle marked as Sold successfully"
         });
 
     

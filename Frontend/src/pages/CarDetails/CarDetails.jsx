@@ -224,8 +224,9 @@ function CarDetails() {
 
     if (!car) return null;
 
+    const whatsappNumber = (import.meta.env.VITE_WHATSAPP_NUMBER || "919876543210").replace(/[^0-9]/g, "");
     const waText = encodeURIComponent(`Hi, I'm interested in the ${car.brandId?.name || ""} ${car.name} (Year: ${car.year}). Can you provide more details?`);
-    const waUrl = `https://wa.me/97140000000?text=${waText}`;
+    const waUrl = `https://wa.me/${whatsappNumber}?text=${waText}`;
 
     return (
         <motion.div 

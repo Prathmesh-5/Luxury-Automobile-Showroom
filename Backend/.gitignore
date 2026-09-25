@@ -1,0 +1,29 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.env
+google-credentials.json
+*.private.json
+credentials/
+*.pem
+
+# Dependencies
+node_modules/
+
+# Runtime Uploads & Generated Assets
+uploads/
+
+# Build & Dist
+dist/
+dist-ssr/
+build/
+
+# Temp, Debug & Scratch
+scratch/
+src/scratch/
+cd
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*

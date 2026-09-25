@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { brandsApi, uploadApi } from "../../services/api";
 import { toast } from "react-hot-toast";
 import { FiPlus, FiEdit, FiTrash, FiGlobe, FiEye, FiEyeOff, FiCamera, FiSearch, FiX } from "react-icons/fi";
+import PremiumSelect from "./PremiumSelect";
 import "./AdminCommon.css";
 
 const getCountryCode = (countryName) => {
@@ -69,6 +70,10 @@ function AdminBrands() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
+    // ── Pagination state ──
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize]       = useState("10");
+
     const filteredBrands = brands.filter((brand) => {
         if (!searchQuery.trim()) return true;
         const query = searchQuery.trim().toLowerCase();
@@ -76,6 +81,43 @@ function AdminBrands() {
         const matchesCountry = brand.country && brand.country.toLowerCase().includes(query);
         return matchesName || matchesCountry;
     });
+
+    // ── Reset pagination on search query change ──
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
+    // ── Pagination calculations ──
+    const limit = pageSize === "all" ? (filteredBrands.length || 1) : Number(pageSize);
+    const totalPages = Math.ceil(filteredBrands.length / limit) || 1;
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [pageSize, filteredBrands.length, totalPages, currentPage]);
+
+    const startIndex = (validPage - 1) * limit;
+    const endIndex   = pageSize === "all" ? filteredBrands.length : Math.min(startIndex + limit, filteredBrands.length);
+    const paginatedBrands = filteredBrands.slice(startIndex, endIndex);
+
+    const getPageRange = () => {
+        const total = totalPages || 1;
+        const current = validPage;
+        const range = [];
+        const maxVisible = 5;
+        let start = Math.max(1, current - Math.floor(maxVisible / 2));
+        let end = Math.min(total, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) {
+            start = Math.max(1, end - maxVisible + 1);
+        }
+        for (let i = start; i <= end; i++) {
+            range.push(i);
+        }
+        return range;
+    };
+    const pageNumbers = getPageRange();
     
     // Modal states
     const [showModal, setShowModal] = useState(false);
@@ -379,58 +421,110 @@ function AdminBrands() {
                             <p>No brands match your search query "{searchQuery}".</p>
                         </div>
                     ) : (
-                        <div className="table-responsive">
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Logo</th>
-                                        <th>Brand Name</th>
-                                        <th>Origin Country</th>
-                                        <th>Active Status</th>
-                                        <th className="text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredBrands.map((brand) => (
-                                        <tr key={brand._id}>
-                                            <td className="logo-cell">
-                                                <img src={getLogoUrl(brand.logo)} alt={brand.name} />
-                                            </td>
-                                            <td>
-                                                <strong>{brand.name}</strong>
-                                            </td>
-                                            <td>
-                                                <span className="country-badge">
-                                                    {getCountryFlag(brand.country) ? (
-                                                        <span className="country-flag-emoji" style={{ fontSize: "16px", lineHeight: 1 }}>
-                                                            {getCountryFlag(brand.country)}
-                                                        </span>
-                                                    ) : (
-                                                        <FiGlobe />
-                                                    )}
-                                                    {brand.country || "Unknown"}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                {brand.isActive ? (
-                                                    <span className="badge-status success"><FiEye /> Active</span>
-                                                ) : (
-                                                    <span className="badge-status danger"><FiEyeOff /> Suspended</span>
-                                                )}
-                                            </td>
-                                            <td className="text-right actions-cell">
-                                                <button className="edit-btn" onClick={() => openEditModal(brand)} title="Edit Brand">
-                                                    <FiEdit />
-                                                </button>
-                                                <button className="delete-btn" onClick={() => handleDelete(brand._id)} title="Delete Brand">
-                                                    <FiTrash />
-                                                </button>
-                                            </td>
+                        <>
+                            <div className="table-responsive">
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Logo</th>
+                                            <th>Brand Name</th>
+                                            <th>Origin Country</th>
+                                            <th>Active Status</th>
+                                            <th className="text-right">Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {paginatedBrands.map((brand) => (
+                                            <tr key={brand._id}>
+                                                <td className="logo-cell">
+                                                    <img src={getLogoUrl(brand.logo)} alt={brand.name} />
+                                                </td>
+                                                <td>
+                                                    <strong>{brand.name}</strong>
+                                                </td>
+                                                <td>
+                                                    <span className="country-badge">
+                                                        {getCountryFlag(brand.country) ? (
+                                                            <span className="country-flag-emoji" style={{ fontSize: "16px", lineHeight: 1 }}>
+                                                                {getCountryFlag(brand.country)}
+                                                            </span>
+                                                        ) : (
+                                                            <FiGlobe />
+                                                        )}
+                                                        {brand.country || "Unknown"}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {brand.isActive ? (
+                                                        <span className="badge-status success"><FiEye /> Active</span>
+                                                    ) : (
+                                                        <span className="badge-status danger"><FiEyeOff /> Suspended</span>
+                                                    )}
+                                                </td>
+                                                <td className="text-right actions-cell">
+                                                    <button className="edit-btn" onClick={() => openEditModal(brand)} title="Edit Brand">
+                                                        <FiEdit />
+                                                    </button>
+                                                    <button className="delete-btn" onClick={() => handleDelete(brand._id)} title="Delete Brand">
+                                                        <FiTrash />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* ── Pagination Footer (PAGE SIZE + Pagination Controls) ── */}
+                            <div className="cars-pagination-footer">
+                                <div className="cars-pagesize-group">
+                                    <label htmlFor="brands-pagesize-select" className="cars-pagesize-label">PAGE SIZE</label>
+                                    <PremiumSelect
+                                        id="brands-pagesize-select"
+                                        value={pageSize}
+                                        onChange={(e) => setPageSize(e.target.value)}
+                                        options={[
+                                            { value: "5",  label: "5 / Page" },
+                                            { value: "10", label: "10 / Page" },
+                                            { value: "20", label: "20 / Page" },
+                                            { value: "50", label: "50 / Page" },
+                                            { value: "all", label: "All" }
+                                        ]}
+                                        dropUp={true}
+                                    />
+                                </div>
+
+                                {totalPages > 1 && (
+                                    <div className="cars-pagination-controls">
+                                        <button
+                                            className="cars-pagination-btn"
+                                            disabled={validPage === 1}
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        >
+                                            Previous
+                                        </button>
+
+                                        {pageNumbers.map(num => (
+                                            <button
+                                                key={num}
+                                                className={`cars-pagination-btn ${validPage === num ? 'active' : ''}`}
+                                                onClick={() => setCurrentPage(num)}
+                                            >
+                                                {num}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            className="cars-pagination-btn"
+                                            disabled={validPage === totalPages}
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     )}
                 </>
             )}

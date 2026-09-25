@@ -93,6 +93,10 @@ const carSchema = new mongoose.Schema(
         type: String
     }
     ],
+    lastSyncedHash: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

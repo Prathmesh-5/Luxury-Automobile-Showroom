@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { brandsApi } from "../../services/api";
+import { brandsApi, brandShowcaseSettingsApi } from "../../services/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -9,23 +9,41 @@ import BrandShowcase from "./BrandShowcase";
 function Brands() {
     const [brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [settings, setSettings] = useState({
+        smallHeading: "WORLD'S FINEST AUTOMOBILE BRANDS",
+        mainHeading: "Luxury Brands",
+        showSection: true
+    });
 
     const [selectedBrand, setSelectedBrand] = useState(null);
     const showcaseRef = useRef(null);
 
     useEffect(() => {
-        const fetchBrands = async () => {
+        const fetchBrandsAndSettings = async () => {
             try {
                 const list = await brandsApi.getAll();
                 setBrands(list.filter((b) => b.isActive));
             } catch (err) {
                 console.error("Error fetching brands:", err);
+            }
+
+            try {
+                const showcaseData = await brandShowcaseSettingsApi.getPublic();
+                if (showcaseData) {
+                    setSettings({
+                        smallHeading: showcaseData.smallHeading || "WORLD'S FINEST AUTOMOBILE BRANDS",
+                        mainHeading: showcaseData.mainHeading || "Luxury Brands",
+                        showSection: showcaseData.showSection !== undefined ? showcaseData.showSection : true
+                    });
+                }
+            } catch (err) {
+                console.error("Error fetching brand showcase settings:", err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchBrands();
+        fetchBrandsAndSettings();
     }, []);
 
     const getLogoUrl = (brand) => {
@@ -50,17 +68,17 @@ function Brands() {
         }, 100);
     };
 
-    if (loading || brands.length === 0) {
+    if (loading || brands.length === 0 || settings.showSection === false) {
         return null;
     }
 
     return (
         <section className="brands-section">
             <p className="brands-subtitle">
-                WORLD'S FINEST AUTOMOBILE BRANDS
+                {settings.smallHeading || "WORLD'S FINEST AUTOMOBILE BRANDS"}
             </p>
 
-            <h2>Luxury Brands</h2>
+            <h2>{settings.mainHeading || "Luxury Brands"}</h2>
 
             <Swiper
                 modules={[Autoplay]}

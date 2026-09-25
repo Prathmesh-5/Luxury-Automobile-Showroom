@@ -13,7 +13,8 @@ import { protect } from "../middleware/authMiddleware.js";
 import {
     createTestDrive,
     getAllTestDrives,
-    updateTestDriveStatus
+    updateTestDriveStatus,
+    deleteTestDrive
 } from "../controllers/testDriveController.js";
 
 const router = express.Router();
@@ -106,5 +107,27 @@ router.get("/", protect, getAllTestDrives);
  *         description: Test drive not found
  */
 router.put("/:id", protect, updateTestDriveStatus);
+
+/**
+ * @swagger
+ * /api/test-drives/{id}:
+ *   delete:
+ *     summary: Delete a test drive booking
+ *     tags: [Test Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test drive booking deleted successfully
+ *       404:
+ *         description: Test drive booking not found
+ */
+router.delete("/:id", protect, deleteTestDrive);
 
 export default router;

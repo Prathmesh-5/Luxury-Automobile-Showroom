@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
-import { brandsApi } from "../../services/api";
+import { brandsApi, heroSettingsApi } from "../../services/api";
 import "./Navbar.css";
-import logo from "../../assets/images/logo/logo.png";
+import defaultLogo from "../../assets/images/logo/logo.png";
 
 function Navbar() {
     const navigate = useNavigate();
@@ -12,6 +12,7 @@ function Navbar() {
     
     const [brands, setBrands] = useState([]);
     const [brandsDropdownOpen, setBrandsDropdownOpen] = useState(false);
+    const [logoUrl, setLogoUrl] = useState("");
 
     useEffect(() => {
         const handleScroll = () => {
@@ -35,7 +36,18 @@ function Navbar() {
                 console.error("Failed to load brands for navbar:", err);
             }
         };
+        const fetchSettings = async () => {
+            try {
+                const data = await heroSettingsApi.getPublic();
+                if (data && data.logoUrl) {
+                    setLogoUrl(data.logoUrl);
+                }
+            } catch (err) {
+                console.error("Failed to load logo from hero settings:", err);
+            }
+        };
         fetchBrands();
+        fetchSettings();
     }, []);
 
     const toggleMobileMenu = () => setMobileOpen(!mobileOpen);
@@ -43,6 +55,13 @@ function Navbar() {
     const closeMobileMenu = () => {
         setMobileOpen(false);
         setBrandsDropdownOpen(false);
+    };
+
+    const getFormattedLogo = (url) => {
+        if (!url) return defaultLogo;
+        if (url.startsWith("http://") || url.startsWith("https://")) return url;
+        const base = import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:5000";
+        return `${base}${url}`;
     };
 
     return (
@@ -100,7 +119,7 @@ function Navbar() {
                 {/* Logo */}
                 <div className="nav-logo">
                     <Link to="/" onClick={closeMobileMenu}>
-                        <img src={logo} alt="Apex Luxury Automobiles" />
+                        <img src={getFormattedLogo(logoUrl)} alt="Apex Luxury Automobiles" />
                     </Link>
                 </div>
 

@@ -5,7 +5,8 @@ const leadSchema = new mongoose.Schema(
     carId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Car",
-        required: true
+        required: false,
+        default: null
     },
 
     name: {

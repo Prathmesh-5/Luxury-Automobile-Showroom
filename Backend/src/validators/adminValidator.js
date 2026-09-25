@@ -49,3 +49,40 @@ export const resetPasswordValidation = [
         .matches(/[!@#$%^&*(),.?":{}|<>_\-+=]/)
         .withMessage("Password must contain at least one special character")
 ];
+
+export const updateProfileValidation = [
+    body("name")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage("Name cannot be empty"),
+    body("profileImage")
+        .optional()
+        .trim()
+];
+
+export const updateEmailValidation = [
+    body("currentPassword")
+        .notEmpty()
+        .withMessage("Current password is required"),
+    body("newEmail")
+        .trim()
+        .isEmail()
+        .withMessage("Valid email is required")
+];
+
+export const updatePasswordValidation = [
+    body("currentPassword")
+        .notEmpty()
+        .withMessage("Current password is required"),
+    body("newPassword")
+        .isLength({ min: 6 })
+        .withMessage("Password must be at least 6 characters"),
+    body("confirmPassword")
+        .custom((value, { req }) => {
+            if (value !== req.body.newPassword) {
+                throw new Error("New password and confirmation must match");
+            }
+            return true;
+        })
+];

@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { sellCarsApi, uploadApi } from "../../services/api";
 import { toast } from "react-hot-toast";
-import { FiUser, FiMail, FiPhone, FiInfo, FiCamera, FiCheckCircle } from "react-icons/fi";
+import { FiUser, FiMail, FiPhone, FiInfo, FiCamera, FiCheckCircle, FiX } from "react-icons/fi";
 import "./SellYourCar.css";
 
 function SellYourCar() {
@@ -19,31 +19,94 @@ function SellYourCar() {
     const [price, setPrice] = useState("");
     const [message, setMessage] = useState("");
     
-    // File upload states
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [previews, setPreviews] = useState([]);
+    // Unified image state: each item is { file: File, id: string, previewUrl: string }
+    const [images, setImages] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        setSelectedFiles(files);
+        
+        // Limit total images to 10
+        if (images.length + files.length > 10) {
+            toast.error("You can upload a maximum of 10 vehicle images.");
+            return;
+        }
 
-        // Generate image previews
-        const newPreviews = files.map(file => URL.createObjectURL(file));
-        setPreviews(newPreviews);
+        const validImages = [];
+        for (let file of files) {
+            // File size validation (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error(`${file.name} exceeds the 10MB limit.`);
+                continue;
+            }
+            // File type validation (images only)
+            if (!file.type.startsWith("image/")) {
+                toast.error(`${file.name} is not a valid image format.`);
+                continue;
+            }
+
+            validImages.push({
+                file,
+                id: Math.random().toString(36).substring(2, 9),
+                previewUrl: URL.createObjectURL(file)
+            });
+        }
+
+        setImages(prev => [...prev, ...validImages]);
+    };
+
+    const handleDeleteImage = (id) => {
+        setImages(prev => {
+            const item = prev.find(img => img.id === id);
+            if (item && item.previewUrl) {
+                URL.revokeObjectURL(item.previewUrl);
+            }
+            return prev.filter(img => img.id !== id);
+        });
+    };
+
+    // HTML5 Drag and Drop handlers
+    const handleDragStart = (e, index) => {
+        e.dataTransfer.setData("text/plain", index);
+        e.currentTarget.classList.add("dragging");
+    };
+
+    const handleDragEnd = (e) => {
+        e.currentTarget.classList.remove("dragging");
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (e, targetIndex) => {
+        e.preventDefault();
+        const sourceIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+        if (sourceIndex === targetIndex) return;
+
+        setImages(prev => {
+            const reordered = [...prev];
+            const [movedItem] = reordered.splice(sourceIndex, 1);
+            reordered.splice(targetIndex, 0, movedItem);
+            return reordered;
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (submitting) return;
+
         setSubmitting(true);
         
         try {
             let uploadedImageUrls = [];
             
-            // 1. Upload images if selected
-            if (selectedFiles.length > 0) {
-                toast.loading("Uploading images...", { id: "uploading" });
-                uploadedImageUrls = await uploadApi.uploadImages(selectedFiles);
+            // 1. Upload images if selected using dedicated public upload route
+            if (images.length > 0) {
+                toast.loading("Uploading vehicle images...", { id: "uploading" });
+                const filesToUpload = images.map(img => img.file);
+                uploadedImageUrls = await uploadApi.uploadPublicImages(filesToUpload);
                 toast.success("Images uploaded successfully!", { id: "uploading" });
             }
 
@@ -63,9 +126,16 @@ function SellYourCar() {
             };
 
             await sellCarsApi.create(payload);
-            toast.success("Vehicle valuation request submitted! Our team will contact you in 24 hours.");
             
-            // Reset form
+            // Clean up Object URLs to prevent memory leaks
+            images.forEach(img => {
+                if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
+            });
+
+            setIsSuccess(true);
+            toast.success("Vehicle valuation request submitted successfully!");
+
+            // Reset form fields
             setName("");
             setEmail("");
             setPhone("");
@@ -76,8 +146,7 @@ function SellYourCar() {
             setCondition("Used");
             setPrice("");
             setMessage("");
-            setSelectedFiles([]);
-            setPreviews([]);
+            setImages([]);
         } catch (err) {
             console.error("Valuation request failed:", err);
             toast.error(err.response?.data?.message || "Valuation submission failed.", { id: "uploading" });
@@ -137,157 +206,201 @@ function SellYourCar() {
                     <div className="sell-form-container">
                         <div className="form-header">
                             <FiInfo className="header-icon" />
-                            <h3>Vehicle Information</h3>
+                            <h3>Valuation Request Form</h3>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="sell-form">
-                            {/* Contact Details */}
-                            <div className="form-sub-header">Customer Details</div>
-                            <div className="form-row">
-                                <div className="form-group-icon">
-                                    <FiUser className="input-icon" />
-                                    <input 
-                                        type="text" 
-                                        placeholder="Full Name" 
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        required 
-                                    />
-                                </div>
+                        {isSuccess ? (
+                            <div className="empty-crud-state" style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "15px" }}>
+                                <FiCheckCircle className="empty-icon" style={{ color: "#22c55e", fontSize: "48px" }} />
+                                <h3>Valuation Submitted Successfully!</h3>
+                                <p style={{ color: "#a1a1aa", fontSize: "14px", margin: 0, textAlign: "center" }}>
+                                    Thank you for submitting your vehicle details. Our premium appraisal team will review your request and get in touch within 24 hours.
+                                </p>
+                                <button 
+                                    onClick={() => setIsSuccess(false)}
+                                    className="sell-submit-btn" 
+                                    style={{ maxWidth: "200px", marginTop: "10px" }}
+                                >
+                                    Submit Another Car
+                                </button>
                             </div>
-                            <div className="form-row two-cols">
-                                <div className="form-group-icon">
-                                    <FiMail className="input-icon" />
-                                    <input 
-                                        type="email" 
-                                        placeholder="Email Address" 
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-                                <div className="form-group-icon">
-                                    <FiPhone className="input-icon" />
-                                    <input 
-                                        type="tel" 
-                                        placeholder="Phone Number" 
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Car Specifications */}
-                            <div className="form-sub-header">Car Specifications</div>
-                            <div className="form-row two-cols">
-                                <div className="form-group">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Make (e.g. Porsche)" 
-                                        value={carBrand}
-                                        onChange={(e) => setCarBrand(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Model (e.g. 911 GT3)" 
-                                        value={carModel}
-                                        onChange={(e) => setCarModel(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-row three-cols">
-                                <div className="form-group">
-                                    <input 
-                                        type="number" 
-                                        placeholder="Year" 
-                                        value={carYear}
-                                        onChange={(e) => setCarYear(e.target.value)}
-                                        required 
-                                        min="1990"
-                                        max="2027"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <input 
-                                        type="number" 
-                                        placeholder="Mileage (Km)" 
-                                        value={mileage}
-                                        onChange={(e) => setMileage(e.target.value)}
-                                        required 
-                                        min="0"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <select 
-                                        value={condition}
-                                        onChange={(e) => setCondition(e.target.value)}
-                                        required
-                                    >
-                                        <option value="Used">Pre-Owned</option>
-                                        <option value="New">New Model</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <input 
-                                        type="number" 
-                                        placeholder="Expected Price (INR)" 
-                                        value={price}
-                                        onChange={(e) => setPrice(e.target.value)}
-                                        required 
-                                        min="0"
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <textarea 
-                                        placeholder="Additional Details (modifications, exterior color, service history...)" 
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        rows="4"
-                                    ></textarea>
-                                </div>
-                            </div>
-
-                            {/* Image selector */}
-                            <div className="form-sub-header">Vehicle Images</div>
-                            <div className="form-row upload-row">
-                                <label className="file-upload-card">
-                                    <FiCamera className="upload-icon" />
-                                    <span>Upload Car Photos</span>
-                                    <p>Select multiple images</p>
-                                    <input 
-                                        type="file" 
-                                        multiple 
-                                        accept="image/*" 
-                                        onChange={handleFileChange}
-                                        className="hidden-file-input"
-                                    />
-                                </label>
-                            </div>
-
-                            {/* Previews grid */}
-                            {previews.length > 0 && (
-                                <div className="previews-grid">
-                                    {previews.map((src, index) => (
-                                        <div className="preview-card" key={index}>
-                                            <img src={src} alt={`Preview ${index + 1}`} />
+                        ) : (
+                            <form onSubmit={handleSubmit} className="sell-form">
+                                {/* Contact Details */}
+                                <div className="form-section-card">
+                                    <h4 className="form-section-title">Customer Details</h4>
+                                    <div className="form-row">
+                                        <div className="form-group-icon">
+                                            <FiUser className="input-icon" />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Full Name" 
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                required 
+                                            />
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className="form-row two-cols">
+                                        <div className="form-group-icon">
+                                            <FiMail className="input-icon" />
+                                            <input 
+                                                type="email" 
+                                                placeholder="Email Address" 
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required 
+                                            />
+                                        </div>
+                                        <div className="form-group-icon">
+                                            <FiPhone className="input-icon" />
+                                            <input 
+                                                type="tel" 
+                                                placeholder="Phone Number" 
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
 
-                            <button type="submit" className="sell-submit-btn" disabled={submitting}>
-                                {submitting ? "Processing Request..." : "Request Free Valuation"}
-                            </button>
-                        </form>
+                                {/* Car Specifications */}
+                                <div className="form-section-card">
+                                    <h4 className="form-section-title">Car Specifications</h4>
+                                    <div className="form-row two-cols">
+                                        <div className="form-group">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Make (e.g. Porsche)" 
+                                                value={carBrand}
+                                                onChange={(e) => setCarBrand(e.target.value)}
+                                                required 
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Model (e.g. 911 GT3)" 
+                                                value={carModel}
+                                                onChange={(e) => setCarModel(e.target.value)}
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="form-row three-cols">
+                                        <div className="form-group">
+                                            <input 
+                                                type="number" 
+                                                placeholder="Year" 
+                                                value={carYear}
+                                                onChange={(e) => setCarYear(e.target.value)}
+                                                required 
+                                                min="1990"
+                                                max="2027"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <input 
+                                                type="number" 
+                                                placeholder="Mileage (Km)" 
+                                                value={mileage}
+                                                onChange={(e) => setMileage(e.target.value)}
+                                                required 
+                                                min="0"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <select 
+                                                value={condition}
+                                                onChange={(e) => setCondition(e.target.value)}
+                                                required
+                                            >
+                                                <option value="Used">Pre-Owned</option>
+                                                <option value="New">New Model</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <input 
+                                                type="number" 
+                                                placeholder="Expected Price (INR)" 
+                                                value={price}
+                                                onChange={(e) => setPrice(e.target.value)}
+                                                required 
+                                                min="0"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <textarea 
+                                                placeholder="Additional Details (modifications, exterior color, service history...)" 
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                rows="4"
+                                            ></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Image selector */}
+                                <div className="form-section-card">
+                                    <h4 className="form-section-title">Vehicle Images</h4>
+                                    <div className="form-row upload-row">
+                                        <label className="file-upload-card">
+                                            <FiCamera className="upload-icon" />
+                                            <span>Upload Car Photos</span>
+                                            <p>PNG, JPG, or JPEG format (max 10MB each, up to 10 photos total)</p>
+                                            <input 
+                                                type="file" 
+                                                multiple 
+                                                accept="image/*" 
+                                                onChange={handleFileChange}
+                                                className="hidden-file-input"
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {/* Previews Grid with Drag & Drop ordering */}
+                                    {images.length > 0 && (
+                                        <div>
+                                            <span style={{ fontSize: "11px", color: "#8a8a93", display: "block", marginBottom: "10px", fontStyle: "italic" }}>
+                                                Tip: Click and drag photos to change their display order.
+                                            </span>
+                                            <div className="previews-grid">
+                                                {images.map((img, index) => (
+                                                    <div 
+                                                        className="preview-card" 
+                                                        key={img.id}
+                                                        draggable
+                                                        onDragStart={(e) => handleDragStart(e, index)}
+                                                        onDragEnd={handleDragEnd}
+                                                        onDragOver={handleDragOver}
+                                                        onDrop={(e) => handleDrop(e, index)}
+                                                    >
+                                                        <img src={img.previewUrl} alt={`Preview ${index + 1}`} />
+                                                        <button 
+                                                            type="button" 
+                                                            className="delete-preview-btn"
+                                                            onClick={() => handleDeleteImage(img.id)}
+                                                            title="Delete image"
+                                                        >
+                                                            <FiX />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button type="submit" className="sell-submit-btn" disabled={submitting}>
+                                    {submitting ? "Processing Request..." : "Request Free Valuation"}
+                                </button>
+                            </form>
+                        )}
                     </div>
 
                 </div>

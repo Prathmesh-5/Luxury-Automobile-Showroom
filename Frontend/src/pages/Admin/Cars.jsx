@@ -5,6 +5,67 @@ import { FiPlus, FiEdit, FiTrash, FiCheckCircle, FiXCircle, FiSliders, FiCamera,
 import PremiumSelect from "./PremiumSelect";
 import "./AdminCommon.css";
 
+const optimizeImage = (file) => {
+    return new Promise((resolve) => {
+        if (file.size < 250 * 1024) {
+            return resolve(file);
+        }
+
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            img.src = e.target.result;
+        };
+
+        img.onload = () => {
+            const maxDimension = 1920;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                    height = Math.round((height * maxDimension) / width);
+                    width = maxDimension;
+                } else {
+                    width = Math.round((width * maxDimension) / height);
+                    height = maxDimension;
+                }
+            } else {
+                return resolve(file);
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        const optimizedFile = new File([blob], file.name, {
+                            type: "image/jpeg",
+                            lastModified: Date.now()
+                        });
+                        resolve(optimizedFile);
+                    } else {
+                        resolve(file);
+                    }
+                },
+                "image/jpeg",
+                0.82
+            );
+        };
+
+        img.onerror = () => {
+            resolve(file);
+        };
+
+        reader.readAsDataURL(file);
+    });
+};
 
 function AdminCars() {
     const [cars, setCars] = useState([]);
@@ -32,10 +93,10 @@ function AdminCars() {
     const [featured, setFeatured] = useState(false);
     const [featuredPriority, setFeaturedPriority] = useState("");
     const [existingImages, setExistingImages] = useState([]);
+    const [draggedIndex, setDraggedIndex] = useState(null);
     
     // Image Upload states
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [previews, setPreviews] = useState([]);
+    const [uploadQueue, setUploadQueue] = useState([]);
     const [submitting, setSubmitting] = useState(false);
 
     // ── Search / Filter / Sort state ──
@@ -50,6 +111,80 @@ function AdminCars() {
     const [filterPriceOnCall, setFilterPriceOnCall] = useState("");
     const [sortOption, setSortOption] = useState("latest");
 
+    // ── Pagination state ──
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize]       = useState("10");
+
+    const closeModal = () => {
+        setShowModal(false);
+        uploadQueue.forEach(item => {
+            if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+        });
+        setUploadQueue([]);
+    };
+
+    const uploadFile = async (itemToUpload) => {
+        const { id, file } = itemToUpload;
+
+        setUploadQueue(prev => prev.map(item => {
+            if (item.id === id) return { ...item, status: "compressing" };
+            return item;
+        }));
+
+        try {
+            const optimized = await optimizeImage(file);
+
+            setUploadQueue(prev => prev.map(item => {
+                if (item.id === id) return { ...item, status: "uploading" };
+                return item;
+            }));
+
+            const formData = new FormData();
+            formData.append("images", optimized);
+
+            const res = await uploadApi.uploadImagesSingle(formData, (progress) => {
+                setUploadQueue(prev => prev.map(item => {
+                    if (item.id === id) return { ...item, progress };
+                    return item;
+                }));
+            });
+
+            if (res && res.length > 0) {
+                setUploadQueue(prev => prev.map(item => {
+                    if (item.id === id) return { ...item, status: "success", uploadedUrl: res[0], progress: 100 };
+                    return item;
+                }));
+            } else {
+                throw new Error("Empty upload response");
+            }
+        } catch (err) {
+            console.error("Upload failed for item", id, err);
+            setUploadQueue(prev => prev.map(item => {
+                if (item.id === id) return { ...item, status: "failed", error: err.response?.data?.message || err.message || "Upload failed" };
+                return item;
+            }));
+        }
+    };
+
+    useEffect(() => {
+        const activeCount = uploadQueue.filter(item => item.status === "compressing" || item.status === "uploading").length;
+        const limit = 3;
+        if (activeCount < limit) {
+            const nextIdle = uploadQueue.find(item => item.status === "idle");
+            if (nextIdle) {
+                uploadFile(nextIdle);
+            }
+        }
+    }, [uploadQueue]);
+
+    useEffect(() => {
+        return () => {
+            uploadQueue.forEach(item => {
+                if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+            });
+        };
+    }, []);
+
     const resetFilters = () => {
         setSearchQuery("");
         setFilterBrand("");
@@ -61,6 +196,7 @@ function AdminCars() {
         setFilterYear("");
         setFilterPriceOnCall("");
         setSortOption("latest");
+        setCurrentPage(1);
     };
 
     const loadData = async () => {
@@ -100,8 +236,10 @@ function AdminCars() {
         setFeatured(false);
         setFeaturedPriority("");
         setExistingImages([]);
-        setSelectedFiles([]);
-        setPreviews([]);
+        uploadQueue.forEach(item => {
+            if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+        });
+        setUploadQueue([]);
         setShowModal(true);
     };
 
@@ -123,18 +261,86 @@ function AdminCars() {
         setFeatured(car.featured || false);
         setFeaturedPriority(car.featuredPriority !== undefined && car.featuredPriority !== 9999 ? car.featuredPriority.toString() : "");
         setExistingImages(car.images || []);
-        setSelectedFiles([]);
-        setPreviews([]);
+        uploadQueue.forEach(item => {
+            if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+        });
+        setUploadQueue([]);
         setShowModal(true);
     };
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        setSelectedFiles(files);
+        if (files.length === 0) return;
 
-        // Previews
-        const newPreviews = files.map(file => URL.createObjectURL(file));
-        setPreviews(newPreviews);
+        const newQueueItems = [];
+        for (const file of files) {
+            const isDuplicate = uploadQueue.some(item => 
+                item.file.name === file.name && 
+                item.file.size === file.size && 
+                item.file.lastModified === file.lastModified
+            );
+            if (isDuplicate) continue;
+
+            const previewUrl = URL.createObjectURL(file);
+            newQueueItems.push({
+                id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+                file,
+                previewUrl,
+                status: "idle",
+                progress: 0,
+                uploadedUrl: "",
+                error: ""
+            });
+        }
+
+        setUploadQueue(prev => [...prev, ...newQueueItems]);
+    };
+
+    const handleRemoveQueueItem = (id) => {
+        setUploadQueue(prev => {
+            const target = prev.find(item => item.id === id);
+            if (target && target.previewUrl) {
+                URL.revokeObjectURL(target.previewUrl);
+            }
+            return prev.filter(item => item.id !== id);
+        });
+    };
+
+    const handleRetryUpload = (id) => {
+        setUploadQueue(prev => prev.map(item => {
+            if (item.id === id) {
+                return { ...item, status: "idle", progress: 0, error: "" };
+            }
+            return item;
+        }));
+    };
+
+    const handleDragStart = (e, index) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = "move";
+        e.currentTarget.classList.add("dragging");
+    };
+
+    const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+    };
+
+    const handleDragEnd = (e) => {
+        e.currentTarget.classList.remove("dragging");
+        setDraggedIndex(null);
+    };
+
+    const handleDrop = (e, targetIndex) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+        const updated = [...existingImages];
+        const [draggedItem] = updated.splice(draggedIndex, 1);
+        updated.splice(targetIndex, 0, draggedItem);
+
+        setExistingImages(updated);
+        setDraggedIndex(null);
     };
 
     const handleRemoveExistingImage = (idx) => {
@@ -143,6 +349,20 @@ function AdminCars() {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+
+        // Check if there are active or pending uploads in the queue
+        const pendingUploads = uploadQueue.filter(item => item.status === "idle" || item.status === "compressing" || item.status === "uploading");
+        if (pendingUploads.length > 0) {
+            toast.error("Please wait for all images to finish uploading.");
+            return;
+        }
+
+        const failedUploads = uploadQueue.filter(item => item.status === "failed");
+        if (failedUploads.length > 0) {
+            if (!window.confirm(`There are ${failedUploads.length} failed image upload(s). Do you want to save the car details without these images?`)) {
+                return;
+            }
+        }
 
         // Frontend Validation for Featured Priority
         if (featured) {
@@ -165,16 +385,12 @@ function AdminCars() {
         const slug = `${brandSlug}-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
         try {
-            let uploadedImageUrls = [];
-            
-            // 1. Upload new files if any
-            if (selectedFiles.length > 0) {
-                toast.loading("Uploading vehicle images...", { id: "car-upload" });
-                uploadedImageUrls = await uploadApi.uploadImages(selectedFiles);
-                toast.success("Images uploaded successfully!", { id: "car-upload" });
-            }
+            // Collect successful uploaded paths
+            const uploadedImageUrls = uploadQueue
+                .filter(item => item.status === "success")
+                .map(item => item.uploadedUrl);
 
-            // 2. Combine with remaining existing images
+            // Combine with remaining existing images
             const finalImages = [...existingImages, ...uploadedImageUrls];
 
             const payload = {
@@ -185,7 +401,7 @@ function AdminCars() {
                 year: parseInt(year),
                 condition,
                 status, // Pass status to request
-                price: parseFloat(price),
+                price: parseFloat(price) || 0,
                 priceOnCall,
                 mileage: parseInt(mileage) || 0,
                 engine,
@@ -198,17 +414,18 @@ function AdminCars() {
 
             if (editMode) {
                 await carsApi.update(selectedCarId, payload);
-                toast.success("Car updated successfully!", { id: "car-upload" });
+                toast.success("Car updated successfully!");
             } else {
                 await carsApi.create(payload);
-                toast.success("Car added successfully!", { id: "car-upload" });
+                toast.success("Car added successfully!");
             }
 
-            setShowModal(false);
+            closeModal();
             loadData();
         } catch (err) {
             console.error("Car save error:", err);
-            toast.error(err.response?.data?.message || "Operation failed.", { id: "car-upload" });
+            const errMsg = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || "Operation failed.";
+            toast.error(errMsg);
         } finally {
             setSubmitting(false);
         }
@@ -299,6 +516,43 @@ function AdminCars() {
         }
         return result;
     })();
+
+    // ── Reset pagination on search or filter change ──
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, filterBrand, filterStatus, filterFeatured, filterCondition, filterFuelType, filterTransmission, filterYear, filterPriceOnCall, sortOption]);
+
+    // ── Pagination calculations ──
+    const limit = pageSize === "all" ? (filteredAndSortedCars.length || 1) : Number(pageSize);
+    const totalPages = Math.ceil(filteredAndSortedCars.length / limit) || 1;
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [pageSize, filteredAndSortedCars.length, totalPages, currentPage]);
+
+    const startIndex = (validPage - 1) * limit;
+    const endIndex   = pageSize === "all" ? filteredAndSortedCars.length : Math.min(startIndex + limit, filteredAndSortedCars.length);
+    const paginatedCars = filteredAndSortedCars.slice(startIndex, endIndex);
+
+    const getPageRange = () => {
+        const total = totalPages || 1;
+        const current = validPage;
+        const range = [];
+        const maxVisible = 5;
+        let start = Math.max(1, current - Math.floor(maxVisible / 2));
+        let end = Math.min(total, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) {
+            start = Math.max(1, end - maxVisible + 1);
+        }
+        for (let i = start; i <= end; i++) {
+            range.push(i);
+        }
+        return range;
+    };
+    const pageNumbers = getPageRange();
 
     // ── Active chips (one per active filter/search) ──
     const activeChips = [
@@ -528,57 +782,109 @@ function AdminCars() {
                             </button>
                         </div>
                     ) : (
-                        <div className="table-responsive">
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Display</th>
-                                        <th>Car Profile</th>
-                                        <th>Specification</th>
-                                        <th>Pricing</th>
-                                        <th>Featured</th>
-                                        <th className="text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredAndSortedCars.map((car) => (
-                                        <tr key={car._id}>
-                                            <td className="logo-cell">
-                                                <img src={getImageUrl(car.images[0])} alt={car.name} />
-                                            </td>
-                                            <td>
-                                                <strong className="car-title-strong">{car.name}</strong>
-                                                <span className="car-brand-sub">
-                                                    {car.brandId?.name || "Auto-Created"} - Model: {car.model}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className="spec-tag-sub">{car.year} | {car.condition}</span>
-                                                <span className="spec-tag-sub desc">{car.engine} | {car.transmission}</span>
-                                            </td>
-                                            <td>
-                                                <strong>{car.priceOnCall ? "Price On Call" : formatPrice(car.price)}</strong>
-                                            </td>
-                                            <td>
-                                                {car.featured ? (
-                                                    <span className="badge-status success"><FiCheckCircle /> Yes</span>
-                                                ) : (
-                                                    <span className="badge-status danger"><FiXCircle /> No</span>
-                                                )}
-                                            </td>
-                                            <td className="text-right actions-cell">
-                                                <button className="edit-btn" onClick={() => openEditModal(car)} title="Edit Car">
-                                                    <FiEdit />
-                                                </button>
-                                                <button className="delete-btn" onClick={() => handleDelete(car._id)} title="Delete Car">
-                                                    <FiTrash />
-                                                </button>
-                                            </td>
+                        <>
+                            <div className="table-responsive">
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Display</th>
+                                            <th>Car Profile</th>
+                                            <th>Specification</th>
+                                            <th>Pricing</th>
+                                            <th>Featured</th>
+                                            <th className="text-right">Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {paginatedCars.map((car) => (
+                                            <tr key={car._id}>
+                                                <td className="logo-cell">
+                                                    <img src={getImageUrl(car.images[0])} alt={car.name} />
+                                                </td>
+                                                <td>
+                                                    <strong className="car-title-strong">{car.name}</strong>
+                                                    <span className="car-brand-sub">
+                                                        {car.brandId?.name || "Auto-Created"} - Model: {car.model}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="spec-tag-sub">{car.year} | {car.condition}</span>
+                                                    <span className="spec-tag-sub desc">{car.engine} | {car.transmission}</span>
+                                                </td>
+                                                <td>
+                                                    <strong>{car.priceOnCall ? "Price On Call" : formatPrice(car.price)}</strong>
+                                                </td>
+                                                <td>
+                                                    {car.featured ? (
+                                                        <span className="badge-status success"><FiCheckCircle /> Yes</span>
+                                                    ) : (
+                                                        <span className="badge-status danger"><FiXCircle /> No</span>
+                                                    )}
+                                                </td>
+                                                <td className="text-right actions-cell">
+                                                    <button className="edit-btn" onClick={() => openEditModal(car)} title="Edit Car">
+                                                        <FiEdit />
+                                                    </button>
+                                                    <button className="delete-btn" onClick={() => handleDelete(car._id)} title="Delete Car">
+                                                        <FiTrash />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* ── Pagination Footer (PAGE SIZE + Pagination Controls) ── */}
+                            <div className="cars-pagination-footer">
+                                <div className="cars-pagesize-group">
+                                    <label htmlFor="cars-pagesize-select" className="cars-pagesize-label">PAGE SIZE</label>
+                                    <PremiumSelect
+                                        id="cars-pagesize-select"
+                                        value={pageSize}
+                                        onChange={(e) => setPageSize(e.target.value)}
+                                        options={[
+                                            { value: "5",  label: "5 / Page" },
+                                            { value: "10", label: "10 / Page" },
+                                            { value: "20", label: "20 / Page" },
+                                            { value: "50", label: "50 / Page" },
+                                            { value: "all", label: "All" }
+                                        ]}
+                                        dropUp={true}
+                                    />
+                                </div>
+
+                                {totalPages > 1 && (
+                                    <div className="cars-pagination-controls">
+                                        <button
+                                            className="cars-pagination-btn"
+                                            disabled={validPage === 1}
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        >
+                                            Previous
+                                        </button>
+
+                                        {pageNumbers.map(num => (
+                                            <button
+                                                key={num}
+                                                className={`cars-pagination-btn ${validPage === num ? 'active' : ''}`}
+                                                onClick={() => setCurrentPage(num)}
+                                            >
+                                                {num}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            className="cars-pagination-btn"
+                                            disabled={validPage === totalPages}
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     )}
                 </>
             )}
@@ -589,7 +895,7 @@ function AdminCars() {
                     <div className="admin-modal-card large">
                         <div className="modal-header">
                             <h3>{editMode ? "Edit Vehicle Details" : "Add Vehicle Details"}</h3>
-                            <button className="modal-close" onClick={() => setShowModal(false)}>&times;</button>
+                            <button className="modal-close" onClick={closeModal}>&times;</button>
                         </div>
                         
                         <form onSubmit={handleFormSubmit} className="modal-form">
@@ -770,9 +1076,22 @@ function AdminCars() {
                                     <label>Active Images ({existingImages.length})</label>
                                     <div className="modal-image-previews-list">
                                         {existingImages.map((img, index) => (
-                                            <div className="modal-img-card" key={index}>
+                                            <div 
+                                                className="modal-img-card draggable-img-card" 
+                                                key={index}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, index)}
+                                                onDragOver={(e) => handleDragOver(e, index)}
+                                                onDragEnd={handleDragEnd}
+                                                onDrop={(e) => handleDrop(e, index)}
+                                            >
                                                 <img src={getImageUrl(img)} alt="Active" />
-                                                <button type="button" className="remove-img-btn" onClick={() => handleRemoveExistingImage(index)}>
+                                                <button 
+                                                    type="button" 
+                                                    className="remove-img-btn" 
+                                                    onClick={() => handleRemoveExistingImage(index)}
+                                                    style={{ zIndex: 10 }}
+                                                >
                                                     &times;
                                                 </button>
                                             </div>
@@ -797,14 +1116,46 @@ function AdminCars() {
                                 </label>
                             </div>
 
-                            {/* Previews grid */}
-                            {previews.length > 0 && (
+                            {/* Upload progress & queue stats */}
+                            {uploadQueue.length > 0 && (
                                 <div className="modal-form-group">
-                                    <label>New Selected Previews ({previews.length})</label>
+                                    <div className="upload-queue-summary" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                                        <label style={{ margin: 0 }}>
+                                            Selected Images ({uploadQueue.length})
+                                        </label>
+                                        <span style={{ fontSize: "12px", color: "#8a8a93", fontWeight: "600" }}>
+                                            Uploaded: {uploadQueue.filter(i => i.status === "success").length} | Remaining: {uploadQueue.filter(i => i.status === "idle" || i.status === "compressing" || i.status === "uploading").length} | Failed: {uploadQueue.filter(i => i.status === "failed").length}
+                                        </span>
+                                    </div>
                                     <div className="modal-image-previews-list">
-                                        {previews.map((src, index) => (
-                                            <div className="modal-img-card" key={index}>
-                                                <img src={src} alt="New Preview" />
+                                        {uploadQueue.map((item) => (
+                                            <div className="modal-img-card" key={item.id}>
+                                                <img src={item.previewUrl} alt="New Preview" />
+                                                <button 
+                                                    type="button" 
+                                                    className="remove-img-btn" 
+                                                    onClick={() => handleRemoveQueueItem(item.id)}
+                                                    title="Remove selected file"
+                                                >
+                                                    &times;
+                                                </button>
+                                                <div className="upload-status-overlay">
+                                                    {item.status === "compressing" && <span className="status-lbl text-comp">Resizing...</span>}
+                                                    {item.status === "uploading" && <span className="status-lbl text-upload">{item.progress}%</span>}
+                                                    {item.status === "success" && <span className="status-lbl text-success">✓</span>}
+                                                    {item.status === "failed" && (
+                                                        <div className="fail-container">
+                                                            <span className="status-lbl text-fail" title={item.error}>Failed</span>
+                                                            <button 
+                                                                type="button" 
+                                                                className="retry-mini-btn" 
+                                                                onClick={() => handleRetryUpload(item.id)}
+                                                            >
+                                                                Retry
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -815,7 +1166,7 @@ function AdminCars() {
                                 <button type="submit" className="submit-btn" disabled={submitting}>
                                     {submitting ? "Saving details..." : "Save Vehicle"}
                                 </button>
-                                <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
+                                <button type="button" className="cancel-btn" onClick={closeModal}>
                                     Cancel
                                 </button>
                             </div>

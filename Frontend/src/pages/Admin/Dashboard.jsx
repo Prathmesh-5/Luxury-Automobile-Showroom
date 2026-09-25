@@ -13,9 +13,10 @@ function Dashboard() {
     const [loadingStats, setLoadingStats] = useState(true);
 
     // Sync settings states
-    const [sheetUrl, setSheetUrl] = useState("");
+    const [spreadsheetId, setSpreadsheetId] = useState("");
+    const [sheetName, setSheetName] = useState("Sheet1");
     const [syncEnabled, setSyncEnabled] = useState(false);
-    const [syncInterval, setSyncInterval] = useState(60);
+    const [syncInterval, setSyncInterval] = useState(5);
     const [lastSync, setLastSync] = useState(null);
     const [syncErrors, setSyncErrors] = useState([]);
     
@@ -38,9 +39,10 @@ function Dashboard() {
     const loadSettingsData = async () => {
         try {
             const settings = await settingsApi.get();
-            setSheetUrl(settings.googleSheetUrl || "");
+            setSpreadsheetId(settings.googleSpreadsheetId || settings.googleSheetUrl || "");
+            setSheetName(settings.googleSheetName || "Sheet1");
             setSyncEnabled(settings.syncEnabled || false);
-            setSyncInterval(settings.syncIntervalMinutes || 60);
+            setSyncInterval(settings.syncIntervalMinutes || 5);
             setLastSync(settings.lastSyncTime);
             setSyncErrors(settings.syncErrors || []);
         } catch (err) {
@@ -58,7 +60,8 @@ function Dashboard() {
         setUpdatingSettings(true);
         try {
             await settingsApi.update({
-                googleSheetUrl: sheetUrl,
+                googleSpreadsheetId: spreadsheetId,
+                googleSheetName: sheetName,
                 syncEnabled,
                 syncIntervalMinutes: parseInt(syncInterval)
             });
@@ -73,8 +76,8 @@ function Dashboard() {
     };
 
     const handleTriggerSyncNow = async () => {
-        if (!sheetUrl) {
-            toast.error("Configure a spreadsheet URL first.");
+        if (!spreadsheetId) {
+            toast.error("Configure a Spreadsheet ID or URL first.");
             return;
         }
         setSyncingNow(true);
@@ -214,15 +217,30 @@ function Dashboard() {
 
                                 <form onSubmit={handleUpdateSettings} className="sync-config-form">
                                     <div className="sync-form-field">
-                                        <label>Google Sheets Published CSV URL</label>
+                                        <label>Google Spreadsheet ID or URL</label>
                                         <input 
-                                            type="url" 
-                                            placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"
-                                            value={sheetUrl}
-                                            onChange={(e) => setSheetUrl(e.target.value)}
+                                            type="text" 
+                                            placeholder="e.g. 1a2b3c4d5e6f7g8h9i0j..."
+                                            value={spreadsheetId}
+                                            onChange={(e) => setSpreadsheetId(e.target.value)}
+                                            required
                                         />
                                         <span className="field-tip">
-                                            Sheet must be published to Web as a CSV file (File &rarr; Share &rarr; Publish to web &rarr; Choose CSV format).
+                                            Enter the Google Spreadsheet ID (found in the sheet URL) or the full URL.
+                                        </span>
+                                    </div>
+
+                                    <div className="sync-form-field">
+                                        <label>Google Sheet Name</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="e.g. Sheet1"
+                                            value={sheetName}
+                                            onChange={(e) => setSheetName(e.target.value)}
+                                            required
+                                        />
+                                        <span className="field-tip">
+                                            The tab name in your spreadsheet (e.g. Sheet1, Inventory).
                                         </span>
                                     </div>
 

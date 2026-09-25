@@ -56,4 +56,20 @@ router.post(
     }
 );
 
+router.post(
+    "/public-sell-car",
+    upload.array("images", 10),
+    (req, res) => {
+        const imageUrls = req.files.map(
+            file => `/uploads/${file.filename}`
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Images Uploaded Successfully",
+            images: imageUrls
+        });
+    }
+);
+
 export default router;

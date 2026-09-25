@@ -253,12 +253,8 @@ function Chatbot() {
 
         setSubmittingCallback(true);
         try {
-            // Retrieve first car for required CarId
-            const carsList = await faqsApi.getAll(); // Or simple call
-            // We need a valid car ID. Let's fetch one secretly or just pass empty.
-            // Wait, we can get first car or use leadsApi directly
             await leadsApi.create({
-                carId: "6a6a6e408ba236041b43ff12", // dummy valid ID from our seeder or checked DB
+                carId: null,
                 name: callbackName,
                 email: "chatbot@apexluxury.ae",
                 phone: callbackPhone,
@@ -351,31 +347,37 @@ function Chatbot() {
                                     )}
 
                                     {/* Render Fallback choices */}
-                                    {msg.type === "fallback" && (
-                                        <div className="fallback-buttons-list">
-                                            <a href="https://wa.me/97140000000?text=Hi,%20I%20need%20assistance%20regarding%20showroom%20services." target="_blank" rel="noreferrer" className="fb-btn whatsapp">
-                                                <FaWhatsapp /> WhatsApp Us
-                                            </a>
-                                            <button className="fb-btn callback" onClick={() => setShowCallbackForm(true)}>
-                                                Request Callback
-                                            </button>
-                                            <a href="/contact" className="fb-btn inquiry">
-                                                Send Inquiry Form
-                                            </a>
-                                        </div>
-                                    )}
+                                    {msg.type === "fallback" && (() => {
+                                        const waNumber = (import.meta.env.VITE_WHATSAPP_NUMBER || "919876543210").replace(/[^0-9]/g, "");
+                                        return (
+                                            <div className="fallback-buttons-list">
+                                                <a href={`https://wa.me/${waNumber}?text=${encodeURIComponent("Hi, I need assistance regarding showroom services.")}`} target="_blank" rel="noreferrer" className="fb-btn whatsapp">
+                                                    <FaWhatsapp /> WhatsApp Us
+                                                </a>
+                                                <button className="fb-btn callback" onClick={() => setShowCallbackForm(true)}>
+                                                    Request Callback
+                                                </button>
+                                                <a href="/contact" className="fb-btn inquiry">
+                                                    Send Inquiry Form
+                                                </a>
+                                            </div>
+                                        );
+                                    })()}
 
                                     {/* Options after answer */}
-                                    {msg.type === "after_answer" && (
-                                        <div className="post-answer-buttons">
-                                            <button className="fb-btn menu" onClick={resetToMenu}>
-                                                Back to Categories
-                                            </button>
-                                            <a href="https://wa.me/97140000000" target="_blank" rel="noreferrer" className="fb-btn whatsapp">
-                                                <FaWhatsapp /> Ask Live Agent
-                                            </a>
-                                        </div>
-                                    )}
+                                    {msg.type === "after_answer" && (() => {
+                                        const waNumber = (import.meta.env.VITE_WHATSAPP_NUMBER || "919876543210").replace(/[^0-9]/g, "");
+                                        return (
+                                            <div className="post-answer-buttons">
+                                                <button className="fb-btn menu" onClick={resetToMenu}>
+                                                    Back to Categories
+                                                </button>
+                                                <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="fb-btn whatsapp">
+                                                    <FaWhatsapp /> Ask Live Agent
+                                                </a>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         ))}

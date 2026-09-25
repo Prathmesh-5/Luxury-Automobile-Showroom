@@ -13,7 +13,8 @@ import { protect } from "../middleware/authMiddleware.js";
 import {
     createLead,
     getAllLeads,
-    updateLeadStatus
+    updateLeadStatus,
+    deleteLead
 } from "../controllers/leadController.js";
 
 const router = express.Router();
@@ -102,6 +103,28 @@ router.get("/", protect, getAllLeads);
  *         description: Lead not found
  */
 router.put("/:id", protect, updateLeadStatus);
+
+/**
+ * @swagger
+ * /api/leads/{id}:
+ *   delete:
+ *     summary: Delete a lead
+ *     tags: [Leads]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lead deleted successfully
+ *       404:
+ *         description: Lead not found
+ */
+router.delete("/:id", protect, deleteLead);
 
 export default router;
 

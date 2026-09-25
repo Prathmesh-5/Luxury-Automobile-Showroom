@@ -242,3 +242,136 @@ export const sendResetEmail = async (toEmail, resetUrl) => {
         throw error;
     }
 };
+
+/**
+ * Helper to check if SMTP provider credentials are configured in environment variables
+ * @returns {boolean}
+ */
+export const isEmailConfigured = () => {
+    const host = process.env.SMTP_HOST;
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+    return Boolean(host && user && pass);
+};
+
+/**
+ * Send a Newsletter Campaign email via Nodemailer
+ * @param {string} toEmail - Recipient email
+ * @param {string} subject - Email subject
+ * @param {string} contentHtml - HTML or raw text content of campaign
+ * @param {string} [unsubscribeToken] - Unsubscribe token for secure link
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
+export const sendNewsletterEmail = async (toEmail, subject, contentHtml, unsubscribeToken = "", trackingToken = "") => {
+    if (!isEmailConfigured()) {
+        return {
+            success: false,
+            error: "Email provider credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) are not configured in environment variables."
+        };
+    }
+
+    const clientUrl = process.env.VITE_CLIENT_URL || process.env.CLIENT_URL || "http://localhost:5173";
+    const unsubscribeUrl = unsubscribeToken ? `${clientUrl}/unsubscribe?token=${unsubscribeToken}` : `${clientUrl}/unsubscribe`;
+
+    const apiBaseUrl = (
+        process.env.VITE_API_URL || 
+        process.env.API_URL || 
+        process.env.BACKEND_URL || 
+        "http://localhost:5000/api"
+    ).replace(/\/+$/, "");
+
+    let processedContent = contentHtml;
+
+    if (trackingToken) {
+        // Rewrite clickable links for tracking (excluding unsubscribe and special protocol links)
+        processedContent = processedContent.replace(
+            /<a\s+([^>]*?)href=["']([^"']+)["']([^>]*?)>/gi,
+            (match, prefix, origUrl, suffix) => {
+                if (
+                    origUrl.includes("/unsubscribe") ||
+                    origUrl.startsWith("mailto:") ||
+                    origUrl.startsWith("tel:") ||
+                    origUrl.includes("/newsletter/track/")
+                ) {
+                    return match;
+                }
+                const clickUrl = `${apiBaseUrl}/newsletter/track/click/${trackingToken}?url=${encodeURIComponent(origUrl)}`;
+                return `<a ${prefix}href="${clickUrl}"${suffix}>`;
+            }
+        );
+
+        // Inject 1x1 transparent open tracking pixel
+        const openPixel = `<img src="${apiBaseUrl}/newsletter/track/open/${trackingToken}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;" />`;
+        processedContent += openPixel;
+    }
+
+    const fullHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { background-color: #08080a; color: #ffffff; font-family: 'Outfit', 'Helvetica', Arial, sans-serif; margin: 0; padding: 20px; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #121216; border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 16px; overflow: hidden; padding: 40px 30px; }
+            .header { text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); padding-bottom: 25px; margin-bottom: 30px; }
+            .logo { color: #d4af37; font-size: 22px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
+            .content { font-size: 15px; line-height: 1.7; color: #e5e5e7; margin-bottom: 40px; }
+            .footer { border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 20px; text-align: center; font-size: 12px; color: #71717a; }
+            .unsub-link { color: #d4af37; text-decoration: underline; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1 class="logo">APEX LUXURY AUTOMOBILES</h1>
+            </div>
+            <div class="content">
+                ${processedContent}
+            </div>
+            <div class="footer">
+                <p>&copy; ${new Date().getFullYear()} Apex Luxury Showroom. All Rights Reserved.</p>
+                ${unsubscribeToken ? `<p>If you no longer wish to receive newsletter emails, you can <a href="${unsubscribeUrl}" class="unsub-link" target="_blank">Unsubscribe here</a>.</p>` : ""}
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    try {
+        // Controlled development/test-only failure simulation for invalid test recipient addresses
+        if (
+            toEmail &&
+            typeof toEmail === "string" &&
+            (toEmail.toUpperCase().includes("FAILURE-TEST") || toEmail.toUpperCase().includes("INVALID.EXAMPLE"))
+        ) {
+            console.warn(`⚠️ [DEV TEST FAILURE] Controlled simulated SMTP delivery failure for recipient: ${toEmail}`);
+            throw new Error(`Simulated SMTP delivery failure for recipient ${toEmail} (550 5.1.1 User unknown)`);
+        }
+
+        const smtpHost = process.env.SMTP_HOST;
+        const smtpPort = process.env.SMTP_PORT || 587;
+        const smtpUser = process.env.SMTP_USER;
+        const smtpPass = process.env.SMTP_PASS;
+        const fromEmail = process.env.SMTP_FROM || process.env.EMAIL_FROM || `"${process.env.EMAIL_FROM_NAME || 'Apex Luxury Showroom'}" <${smtpUser}>`;
+
+        const transporter = nodemailer.createTransport({
+            host: smtpHost,
+            port: parseInt(smtpPort),
+            secure: parseInt(smtpPort) === 465,
+            auth: { user: smtpUser, pass: smtpPass },
+            tls: { rejectUnauthorized: false }
+        });
+
+        await transporter.sendMail({
+            from: fromEmail,
+            to: toEmail,
+            subject: subject,
+            html: fullHtml
+        });
+
+        return { success: true };
+    } catch (err) {
+        console.error(`Failed to send newsletter email to ${toEmail}:`, err);
+        return { success: false, error: err.message };
+    }
+};

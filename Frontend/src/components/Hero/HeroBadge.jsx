@@ -1,9 +1,9 @@
 import "./HeroBadge.css";
 
-function HeroBadge() {
+function HeroBadge({ badgeText }) {
     return (
         <div className="hero-badge">
-            ★ Trusted Since 2003
+            {badgeText || "★ Trusted Since 2003"}
         </div>
     );
 }

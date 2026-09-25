@@ -11,7 +11,10 @@ import {
     registerAdminValidation,
     loginAdminValidation,
     forgotPasswordValidation,
-    resetPasswordValidation
+    resetPasswordValidation,
+    updateProfileValidation,
+    updateEmailValidation,
+    updatePasswordValidation
 } from "../validators/adminValidator.js";
 
 import validationMiddleware from "../middleware/validationMiddleware.js";
@@ -19,6 +22,9 @@ import {
     registerAdmin,
     loginAdmin,
     getAdminProfile,
+    updateAdminProfile,
+    updateAdminEmail,
+    updateAdminPassword,
     forgotPassword,
     resetPassword,
     validateResetToken
@@ -119,6 +125,30 @@ router.post(
  *         description: Unauthorized
  */
 router.get("/profile", protect, getAdminProfile);
+
+router.put(
+    "/profile",
+    protect,
+    updateProfileValidation,
+    validationMiddleware,
+    updateAdminProfile
+);
+
+router.put(
+    "/profile/email",
+    protect,
+    updateEmailValidation,
+    validationMiddleware,
+    updateAdminEmail
+);
+
+router.put(
+    "/profile/password",
+    protect,
+    updatePasswordValidation,
+    validationMiddleware,
+    updateAdminPassword
+);
 
 /**
  * @swagger

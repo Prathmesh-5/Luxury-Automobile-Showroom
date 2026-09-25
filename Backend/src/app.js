@@ -11,6 +11,13 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
 import sellCarRoutes from "./routes/sellCarRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
+import heroSettingsRoutes from "./routes/heroSettingsRoutes.js";
+import footerSettingsRoutes from "./routes/footerSettingsRoutes.js";
+import brandShowcaseSettingsRoutes from "./routes/brandShowcaseSettingsRoutes.js";
+import aboutSettingsRoutes from "./routes/aboutSettingsRoutes.js";
+import contactSettingsRoutes from "./routes/contactSettingsRoutes.js";
+import newsletterRoutes from "./routes/newsletterRoutes.js";
+import newsletterCampaignRoutes from "./routes/newsletterCampaignRoutes.js";
 import notFound from "./middleware/notFoundMiddleware.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import helmet from "helmet";
@@ -38,12 +45,19 @@ app.use("/api/brands", brandRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/test-drives", testDriveRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static("uploads", { maxAge: "1d", etag: true }));
 app.use("/api/upload", uploadRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/faqs", faqRoutes);
 app.use("/api/sell-cars", sellCarRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/hero-settings", heroSettingsRoutes);
+app.use("/api/footer-settings", footerSettingsRoutes);
+app.use("/api/brand-showcase-settings", brandShowcaseSettingsRoutes);
+app.use("/api/about-settings", aboutSettingsRoutes);
+app.use("/api/contact-settings", contactSettingsRoutes);
+app.use("/api/newsletter/campaigns", newsletterCampaignRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 app.use(
     "/api-docs",
     swaggerUi.serve,
